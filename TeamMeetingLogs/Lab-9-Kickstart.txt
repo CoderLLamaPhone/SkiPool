@@ -47,7 +47,7 @@ Team Meeting: Monday at 7 pm on Discord call
 TA Meeting: Online on Wednesday at 7 pm
 
 12. Case Diagram:
-Committed separately, please refer to Lab-9-CaseDiagram in TeamMeetingLogs
+Committed separately, please refer to Lab-9-Use-Case-Diagram.jpeg in TeamMeetingLogs
 
 13. Wireframs:
 Committed separately, please refer to Lab-9-WireframePics in TeamMeetingLogs
