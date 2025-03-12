@@ -1,0 +1,39 @@
+1. Team Number: 012 - 6
+
+2. Team Name: SkiPool
+
+3. Team Members (Name, GitHub Username, Email):
+Manav Shah, mash8527, manav.shah@colorado.edu
+Kerem Gurkan, CoderLLamaPhone, kerem.gurkan@colorado.edu
+Jeremy Huang, sandsowkd, jeremy.huang@coloado.edu
+Colin Wallace, cwallyy, colin.wallace-1@colorado.edu
+Shane Wierl, shwi6838, shwi6838@colorado.edu
+Rogan Tinjum, rogantinjum, roti8360@colorado.edu
+
+4. Application Name: SkiPool
+
+5. Application Description:
+SkiPool is a ride-sharing app designed to make winter mountain trips more affordable, accessible, and environmentally friendly while fostering a strong, inclusive community of outdoor enthusiasts. 
+SkiPool accomplishes this mission by connecting riders looking for transportation with drivers already heading to the mountains. This helps users of SkiPool save on common travel expenses by sharing 
+costs such as gas, parking, and tolls. This not only makes winter adventures more budget-friendly but also reduces the environmental impact of individual trips and opens up access to users who might not 
+own or have access to their own transportation.
+
+The website allows passengers to filter by ski resorts, ski pass type, or price and allows ratings for both drivers and passengers. The website allows the user to create a post as a driver or sign up as 
+a passenger to another driver's posts. When creating a post as a driver, the user can specify the date of travel, the price they want from each passenger, the number of passengers they can bring, and the 
+ski resort they are going to. When signing up as a passenger, the user must specify the address they want to be picked up from and their phone number in order to coordinate the pickup time with the driver.
+
+Beyond cost savings, SkiPool aims to build a strong community in a space that has commonly lacked inclusivity by keeping expenses high. The website encourages positive interactions by allowing users to 
+rate and review each other, promoting trust and accountability among members, especially when they're going on a trip with someone they haven't met before. By rewarding reliable and respectful 
+participants and discouraging those who do not contribute positively to the community, SkiPool ensures a safer and more enjoyable way for everyone to access the mountains together.
+
+6. Target Audience: 
+Skiers and snowboarders who don't have a ride to the ski resorts or have extra space in their car. More specifically, this website targets college students, as many college students do not have cars and 
+still want to go skiing.
+
+7. Vision Statement:
+For college students who want to ski/snowboard, who don't have a ride or have extra space in their car. SkiPool is a website that matches passengers with drivers to promote carpooling. 
+Unlike Uber, SkiPool is targeted towards college students who need a ride to the slopes!
+
+8. Version Control: Repository is set up accordingly
+
+9. Development Methodology
