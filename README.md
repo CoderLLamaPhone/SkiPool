@@ -12,7 +12,7 @@ Basic description of your project.
 
 ### Technology Stack
 
-TBD
+SQL + Handlebars + JavaScript + Bootstrap
 
 ## Prerequisites to run the application
 
