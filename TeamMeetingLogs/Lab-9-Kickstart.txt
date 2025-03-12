@@ -19,8 +19,7 @@ costs such as gas, parking, and tolls. This not only makes winter adventures mor
 own or have access to their own transportation.
 
 The website allows passengers to filter by ski resorts, ski pass type, or price and allows ratings for both drivers and passengers. The website allows the user to create a post as a driver or sign up as 
-a passenger to another driver's posts. When creating a post as a driver, the user can specify the date of travel, the price they want from each passenger, the number of passengers they can bring, and the 
-ski resort they are going to. When signing up as a passenger, the user must specify the address they want to be picked up from and their phone number in order to coordinate the pickup time with the driver.
+a passenger to another driver's posts. When creating a post as a driver, the user can specify the date of travel, the price they want from each passenger, the number of passengers they can bring, and the ski resort they are going to. When signing up as a passenger, the user must specify the address they want to be picked up from and their phone number in order to coordinate the pickup time with the driver.
 
 Beyond cost savings, SkiPool aims to build a strong community in a space that has commonly lacked inclusivity by keeping expenses high. The website encourages positive interactions by allowing users to 
 rate and review each other, promoting trust and accountability among members, especially when they're going on a trip with someone they haven't met before. By rewarding reliable and respectful 
@@ -36,4 +35,19 @@ Unlike Uber, SkiPool is targeted towards college students who need a ride to the
 
 8. Version Control: Repository is set up accordingly
 
-9. Development Methodology
+9. Development Methodology:
+Using Trello to keep track of the progress of the project.
+Trello link: https://trello.com/b/aHDipJ0Z/csci-3308-skipool
+
+10. Communication Plan:
+Our group plans to communicate using Discord. This will allow us to manage the progress of the different features of SkiPool. Our team will meet on Monday at 7 pm weekly to discuss the progress of the project.
+
+11. Meeting Plan:
+Team Meeting: Monday at 7 pm on Discord call
+TA Meeting: Online on Wednesday at 7 pm
+
+12. Case Diagram:
+Committed separately, please refer to Lab-9-CaseDiagram in TeamMeetingLogs
+
+13. Wireframs:
+Committed separately, please refer to Lab-9-WireframePics in TeamMeetingLogs
