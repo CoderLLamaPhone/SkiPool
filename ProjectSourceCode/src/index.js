@@ -114,6 +114,7 @@ app.post('/login', async (req, res) => {
       if (!match) {
           return res.render('pages/login', { error: "Incorrect username or password." });
       }
+      
 
       req.session.user = user;
       req.session.save(() => {
