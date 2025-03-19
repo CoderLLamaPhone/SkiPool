@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ski Pool - Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f2f2f2;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      padding: 20px;
+    }
+    .profile-container {
+      display: flex;
+      align-items: flex-start;
+    }
+    .profile-image {
+      margin-right: 20px;
+    }
+    .profile-image img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .profile-details {
+      flex: 1;
+    }
+    .profile-details h1 {
+      margin: 0 0 10px;
+    }
+    .profile-details p {
+      margin: 5px 0;
+    }
+    .rating-stars {
+      font-size: 24px;
+      color: gold;
+    }
+    .trips-section {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .trips-section .card {
+      flex: 1;
+      min-width: 280px;
+    }
+    .trips-section h3 {
+      margin: 0 0 10px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+    .trip {
+      border: 1px solid #eee;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Profile Card -->
+  <div class="card">
+    <div class="profile-container">
+      <div class="profile-image">
+        <!-- Replace src with actual image path if available -->
+        <img src="/images/john-doe.jpg" alt="John Doe">
+      </div>
+      <div class="profile-details">
+        <h1>John Doe</h1>
+        <p><strong>Email:</strong> john.doe@example.com</p>
+        <p><strong>Phone:</strong> (555) 123-4567</p>
+        <p><strong>Member Since:</strong> January 2021</p>
+        <p><strong>Ikon Pass:</strong> Yes</p>
+        <p><strong>About Me:</strong> Passionate about skiing and adventure. I love planning trips in advance and exploring Colorado’s finest ski resorts with friends and family.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rating Card -->
+  <div class="card">
+    <h2>Rating</h2>
+    <div class="rating-stars">
+      &#9733; &#9733; &#9733; &#9733; &#9734; <span>(4 out of 5)</span>
+    </div>
+  </div>
+
+  <!-- Trips Section -->
+  <div class="trips-section">
+    <!-- Past Trips Card -->
+    <div class="card">
+      <h3>Past Trips</h3>
+      <div class="trip">
+        <p><strong>Breckenridge, CO</strong></p>
+        <p>Date: January 15, 2025</p>
+      </div>
+      <div class="trip">
+        <p><strong>Vail, CO</strong></p>
+        <p>Date: December 10, 2024</p>
+      </div>
+    </div>
+    <!-- Upcoming Trips Card -->
+    <div class="card">
+      <h3>Upcoming Trips</h3>
+      <div class="trip">
+        <p><strong>Aspen, CO</strong></p>
+        <p>Date: February 20, 2025</p>
+      </div>
+      <div class="trip">
+        <p><strong>Telluride, CO</strong></p>
+        <p>Date: March 15, 2025</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
