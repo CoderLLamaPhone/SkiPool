@@ -1,0 +1,24 @@
+{
+    "name": "skipool",
+    "version": "1.0.0",
+    "description": "SkiPool is a ride-sharing app that connects skiers and snowboarders for cost-effective and eco-friendly mountain trips.",
+    "main": "index.js",
+    "dependencies": {
+      "axios": "^1.1.3",
+        "bcryptjs": "^2.4.0",
+        "body-parser": "1.20.0",
+        "express-handlebars": "^7.1.2",
+        "express": "^4.6.1",
+        "express-session": "1.17.3",
+        "pg-promise": "^10.11.1",
+        "nodemon": "2.0.20"
+    },
+    "devDependencies": {
+      "nodemon": "2.0.20"
+    },
+    "scripts": {
+      "prestart": "npm install",
+      "start": "nodemon index.js"
+    },
+    "author": "Team SkiPool - Manav Shah, Kerem Gurkan, Jeremy Huang, Colin Wallace, Shane Wierl, Rogan Tinjum"
+  }
