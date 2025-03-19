@@ -18,7 +18,7 @@
     },
     "scripts": {
       "prestart": "npm install",
-      "start": "nodemon index.js"
+      "start": "nodemon -L src/index.js"
     },
     "author": "Team SkiPool - Manav Shah, Kerem Gurkan, Jeremy Huang, Colin Wallace, Shane Wierl, Rogan Tinjum"
   }
