@@ -1,0 +1,24 @@
+Introduction
+- These will not be comprehensive meetings
+- Keep to quick bullet points
+
+Things that we have done
+- Colin made login and register working
+- Jeremy uploaded wireframes and began outlines for profile pages
+- Manav worked on kickstart document
+- Shane made use case diagram
+- Kerem worked on ER diagram
+
+Plans for next week
+- Colin plans on making action calls for profile page working with Shane
+- Colin may work on Popup modal for driver ratings
+- Jeremy pull the trips from database
+- Jeremy filtering from ski resorts
+- Manav work on drive
+- Shane made profile page for driver
+- Kerem plans on working on fixing docker compose files
+
+Talking points:
+ - Profile pages and dockers need to be created so that the other pages can begin creating their own pages
+ - Currently using people branches but feature branches are probably nicer to use.
+ - Static data needs to be added
