@@ -80,11 +80,19 @@ app.use(
   // *****************************************************
   
   app.get('/', (req, res) => {
-    res.send('<!DOCTYPE html><html><head><title>Welcome</title></head><body><h1>Welcome to the Website</h1></body></html>');
+    res.render('pages/home');
 });
 
 app.get('/login', (req, res) =>{
     res.render('pages/login');
+});
+
+app.get('/rider', (req, res) =>{
+  res.render('pages/findARide');
+});
+
+app.get('/driver', (req, res) => {
+  res.render('pages/driverInfo');
 });
 
   app.post('/register', async (req, res) => {

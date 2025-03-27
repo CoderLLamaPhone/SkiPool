@@ -1,0 +1,153 @@
+    <!-- IN PROGRESS -->
+    <div class="row">
+        <div class="col-2">
+            <div class="custom-container">
+                <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#event_modal">New Drive</button>
+            </div>
+        </div>
+        <div class="col">
+            <div class="container-md container-fluid py-4 h-100">
+                <div id="calendar" class="row h-100">
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="sunday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Sunday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="monday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Monday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="tuesday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Tuesday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="wednesday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Wednesday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="thursday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Thursday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="friday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Friday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="saturday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Saturday
+                        </div>
+                    </div>
+                </div>        
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Modal -->
+    <div class="modal fade" id="event_modal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="eventModalLabel">Create Event</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="event_form">
+                <input type="hidden" id="event_id">
+                <!-- Event Name -->
+                <div class="mb-3">
+                  <label for="event_name" class="form-label">Event Name</label>
+                  <input type="text" class="form-control" id="event_name" placeholder="Enter event name/purpose" required>
+                  <div class="invalid-feedback">Please enter an event name.</div>
+                </div>
+
+                <!-- Category Field -->
+                <div class="mb-3">
+                  <label for="event_category" class="form-label">Category</label>
+                  <select class="form-select" id="event_category" required>
+                    <option value="Academic">Academic</option>
+                    <option value="Work">Work</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Social">Social</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <div class="invalid-feedback">Please select a category.</div>
+                </div>
+  
+                <!-- Weekday -->
+                <div class="mb-3">
+                  <label for="event_weekday" class="form-label">Weekday</label>
+                  <select class="form-select" id="event_weekday" required>
+                    <option value="Sunday">Sunday</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                  </select>
+                  <div class="invalid-feedback">Please select a weekday.</div>
+                </div>
+      
+                <!-- Time -->
+                <div class="mb-3">
+                  <label for="event_time" class="form-label">Time</label>
+                  <input type="time" class="form-control" id="event_time" required>
+                  <div class="invalid-feedback">Please select a time.</div>
+                </div>
+      
+                <!-- Event Modality -->
+                <div class="mb-3">
+                  <label for="event_modality" class="form-label">Event Modality</label>
+                  <select class="form-select" id="event_modality" required onchange="updateLocationOptions(this.value)">
+                    <option value="In-Person" default>In Person</option>
+                    <option value="Remote">Remote</option>
+                  </select>
+                  <div class="invalid-feedback">Please select a modality.</div>
+                </div>
+      
+                <!-- Location (shown only for In-Person events) -->
+                <div class="mb-3" id="location_field" style="display: none;">
+                  <label for="event_location" class="form-label">Location</label>
+                  <input type="text" class="form-control" id="event_location" placeholder="Enter event location" required>
+                  <div class="invalid-feedback">Please enter a location.</div>
+                </div>
+      
+                <!-- Remote URL (shown only for Remote events) -->
+                <div class="mb-3" id="remote_url_field" style="display: none;">
+                  <label for="event_remote_url" class="form-label">Remote URL</label>
+                  <input type="url" class="form-control" id="event_remote_url" placeholder="Enter Zoom, or other meeting link"
+                         pattern="https?://.*" title="Enter a valid URL (starting with http:// or https://)" required>
+                  <div class="invalid-feedback">Please enter a valid URL (e.g., https://zoom.us).</div>
+                </div>
+      
+                <!-- Attendees -->
+                <div class="mb-3">
+                  <label for="event_attendees" class="form-label">Attendees</label>
+                  <input type="text" class="form-control" id="event_attendees" placeholder="Enter attendees (comma-separated)" required>
+                  <div class="invalid-feedback">Please enter at least one attendee.</div>
+                </div>
+                
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" onclick="saveEvent()">Save Event</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+    </div>
+      
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="./resources/js/script.js"></script>
+
+  </body>
+</html>
