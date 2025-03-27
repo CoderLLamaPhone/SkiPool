@@ -54,11 +54,14 @@ db.connect()
     console.log(`Website is running on http://localhost:${PORT}`);
   });
 
+  // Serve static files from the `resources` directory.
+  app.use('/resources', express.static(path.join(__dirname, 'resources')));
 // Register `hbs` as our view engine using its bound `engine()` function.
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
+
 
 // initialize session variables
 app.use(
@@ -78,15 +81,21 @@ app.use(
   // *****************************************************
   // <!-- Section 4 : API Routes -->
   // *****************************************************
-  
+  // Index
   app.get('/', (req, res) => {
-    res.send('<!DOCTYPE html><html><head><title>Welcome</title></head><body><h1>Welcome to the Website</h1></body></html>');
+    res.redirect('/login');
 });
 
+//Login
 app.get('/login', (req, res) =>{
     res.render('pages/login');
 });
+//Register
+app.get('/register', (req, res) => {
+    res.render('pages/register');
+});
 
+// Register API
   app.post('/register', async (req, res) => {
     try {
         const hash = await bcrypt.hash(req.body.password, 10);
@@ -103,6 +112,7 @@ app.get('/login', (req, res) =>{
     }
 });
 
+// Login API
 app.post('/login', async (req, res) => {
   try {
       const { username, password } = req.body;
@@ -131,3 +141,33 @@ app.post('/login', async (req, res) => {
       res.render('pages/login', { error: "An error occurred. Please try again." });
   }
 });
+
+    // Authentication Middleware.
+    // const auth = (req, res, next) => {
+    //   if (!req.session.user) {
+    //     // Default to login page.
+    //     return res.redirect('/login');
+    //   }
+    //   next();
+    // };
+    
+    // Authentication Required before Profile, Drivers, Riders and Logout
+
+  //Profile
+app.get('/profile', (req, res) => {
+  res.render('pages/profile');
+});
+
+//Drivers Page(s)
+
+//Ride Page(s)
+
+// Logout
+app.get('/logout', (req, res) => {
+  console.log('Logout');
+  req.session.destroy(function(err) {
+  // send message to the client
+    res.render('pages/logout', {message: 'You have been logged out successfully'});
+  });
+});
+
