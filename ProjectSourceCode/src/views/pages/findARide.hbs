@@ -4,197 +4,124 @@
   <meta charset="UTF-8">
   <title>Ski Pool - Find a Ride</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f2f2f2;
+    .trip-details p {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
     }
-    .container {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    .search-card, .trips-card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 5px;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .search-card {
-      flex: 1;
-      max-width: 300px;
-    }
-    .trips-card {
-      flex: 2;
-      min-width: 300px;
-    }
-    .search-card h2, .trips-card h2 {
-      margin-top: 0;
-    }
-    .filter-group {
-      margin-bottom: 15px;
-    }
-    .filter-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    .filter-group input[type="text"],
-    .filter-group input[type="datetime-local"],
-    .filter-group input[type="number"],
-    .filter-group select,
-    .filter-group input[type="range"] {
-      width: 100%;
-      padding: 5px;
-      box-sizing: border-box;
-    }
-    .filter-group input[type="radio"] {
-      margin-right: 5px;
-    }
-    .trip {
-      border: 1px solid #eee;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 4px;
+    .circle-placeholder {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #6c757d; 
+      color: #fff;
       display: flex;
       align-items: center;
-      gap: 15px;
-      background: #fafafa;
-    }
-    .trip img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .trip-details {
-      flex: 1;
-    }
-    .trip-details p {
-      margin: 5px 0;
-    }
-    .signup-button {
-      background: #28a745;
-      color: #fff;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button[type="submit"] {
-      padding: 8px 12px;
-      border: none;
-      background: #007bff;
-      color: #fff;
-      border-radius: 4px;
-      cursor: pointer;
+      justify-content: center;
+      font-size: 1.2rem;
     }
   </style>
 </head>
-
-
-
-<body>
-  <div class="container">
-    <div class="search-card">
-      <h2>Find a Ride</h2>
-      <form id="ride-search-form">
-        <div class="filter-group">
-          <label for="resort">Ski Resort</label>
-          <select id="resort" name="resort">
-            <option value="">--Select a Resort--</option>
-            <option value="breckenridge">Breckenridge, CO</option>
-            <option value="vail">Vail, CO</option>
-            <option value="aspensnowmass">Aspen Snowmass, CO</option>
-            <option value="telluride">Telluride, CO</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Pass Type</label>
-          <input type="radio" id="ikon" name="pass" value="ikon">
-          <label for="ikon">Ikon</label>
-          <input type="radio" id="epic" name="pass" value="epic">
-          <label for="epic">Epic</label>
-        </div>
-        <div class="filter-group">
-          <label for="time">Departure Time</label>
-          <input type="datetime-local" id="time" name="time">
-        </div>
-        <div class="filter-group">
-          <label for="priceRange">Price Range ($)</label>
-          <input type="range" id="priceRange" name="priceRange" min="0" max="500" step="10">
-        </div>
-        <div class="filter-group">
-          <label for="availableSeats">Available Seats</label>
-          <input type="number" id="availableSeats" name="availableSeats" min="1" max="6">
-        </div>
-        <button type="submit">Search</button>
-      </form>
-    </div>
-
-    <div class="trips-card">
-      <h2>Available Trips in Colorado</h2>
-      <div class="trip">
-        <img src="/images/driver1filler.jpg" alt="Alice's Profile Picture">
-        <div class="trip-details">
-          <p><strong>Driver:</strong> Alice</p>
-          <p><strong>Pickup Location:</strong> Denver, CO</p>
-          <p><strong>Pickup Time:</strong> 2025-02-20T08:00</p>
-          <p><strong>Price:</strong> $35</p>
-          <p><strong>Gear Space:</strong> Limited gear space</p>
-          <p><strong>Remaining Spots:</strong> 2</p>
-          <p><strong>Additional Info:</strong> Non-smoking vehicle, friendly driver.</p>
-        </div>
-        <div>
-          <button class="signup-button">Sign Up</button>
+<body class="bg-light">
+  <div class="container my-4">
+    <div class="row">
+      <div class="col-md-3 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Find a Ride</h2>
+          </div>
+          <div class="card-body">
+            <form id="ride-search-form" method="GET" action="/rider">
+              <div class="mb-3">
+                <label for="resort" class="form-label">Ski Resort</label>
+                <select id="resort" name="resort" class="form-select">
+                  <option value="">--Select a Resort--</option>
+                  <option value="breckenridge" {{#if (eq resort "breckenridge")}}selected{{/if}}>Breckenridge, CO</option>
+                  <option value="vail" {{#if (eq resort "vail")}}selected{{/if}}>Vail, CO</option>
+                  <option value="aspensnowmass" {{#if (eq resort "aspensnowmass")}}selected{{/if}}>Aspen Snowmass, CO</option>
+                  <option value="telluride" {{#if (eq resort "telluride")}}selected{{/if}}>Telluride, CO</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Pass Type</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" id="ikon" name="pass" value="ikon" {{#if (eq pass "ikon")}}checked{{/if}}>
+                  <label class="form-check-label" for="ikon">Ikon</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" id="epic" name="pass" value="epic" {{#if (eq pass "epic")}}checked{{/if}}>
+                  <label class="form-check-label" for="epic">Epic</label>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="time" class="form-label">Departure Date</label>
+                <input type="date" id="time" name="time" class="form-control" value="{{time}}">
+              </div>
+              <div class="mb-3">
+                <label for="price" class="form-label">Maximum Price ($)</label>
+                <input type="number" id="price" name="priceRange" class="form-control" min="0" max="100" value="{{priceRange}}">
+              </div>
+              <div class="mb-3">
+                <label for="availableSeats" class="form-label">Minimum available seats</label>
+                <input type="number" id="availableSeats" name="availableSeats" class="form-control" min="1" max="6" value="{{availableSeats}}">
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Search</button>
+              <a href="/rider" class="btn btn-secondary w-100 mt-2">Reset Filters</a>
+            </form>
+          </div>
         </div>
       </div>
-      <div class="trip">
-        <img src="/images/driver2filler.jpg" alt="Bob's Profile Picture">
-        <div class="trip-details">
-          <p><strong>Driver:</strong> Bob</p>
-          <p><strong>Pickup Location:</strong> Boulder, CO</p>
-          <p><strong>Pickup Time:</strong> 2025-02-21T09:30</p>
-          <p><strong>Price:</strong> $25</p>
-          <p><strong>Gear Space:</strong> Plenty of room for skis and snowboards</p>
-          <p><strong>Remaining Spots:</strong> 1</p>
-          <p><strong>Additional Info:</strong> Please bring your own masks.</p>
-        </div>
-        <div>
-          <button class="signup-button">Sign Up</button>
-        </div>
-      </div>
-      <div class="trip">
-        <img src="/images/driver3filer.jpg" alt="Charlie's Profile Picture">
-        <div class="trip-details">
-          <p><strong>Driver:</strong> Charlie</p>
-          <p><strong>Pickup Location:</strong> Aspen, CO</p>
-          <p><strong>Pickup Time:</strong> 2025-02-22T07:45</p>
-          <p><strong>Price:</strong> $40</p>
-          <p><strong>Gear Space:</strong> Ample space, can carry extra gear</p>
-          <p><strong>Remaining Spots:</strong> 3</p>
-          <p><strong>Additional Info:</strong> Music allowed. Temperature controlled car.</p>
-        </div>
-        <div>
-          <button class="signup-button">Sign Up</button>
+      <div class="col-md-9">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Available Trips in Colorado</h2>
+          </div>
+          <div class="card-body">
+            {{#if trips.length}}
+              {{#each trips}}
+                <div class="card mb-3">
+                  <div class="row g-0 align-items-center">
+                    <div class="col-md-2 d-flex flex-column align-items-center justify-content-center p-3">
+                      <div class="circle-placeholder mb-2">
+                        {{#if driver}}{{driver.[0]}}{{else}}N/A{{/if}}
+                      </div>
+                      <div class="text-center">
+                        <small class="fw-bold">{{driver}}</small><br>
+                        <small>ID: {{tripID}}</small>
+                      </div>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="row trip-details">
+                        <div class="col-md-6">
+                          <p><strong>Pickup Location:</strong> {{pickupLocation}}</p>
+                          <p><strong>Departure Date:</strong> {{departureDate}}</p>
+                          <p><strong>Price ($):</strong> {{cost}}</p>
+                          <p><strong>Gear Space:</strong> {{gearSpace}}</p>
+                        </div>
+                        <div class="col-md-6">
+                          <p><strong>Min. Available Seats:</strong> {{availableSeats}}</p>
+                          <p><strong>Additional Info:</strong> {{additionalInfo}}</p>
+                          <p><strong>Resort:</strong> {{resort}}</p>
+                          <p><strong>Pass:</strong> {{pass}}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-center justify-content-center">
+                      <button class="btn btn-success">Sign Up</button>
+                    </div>
+                  </div>
+                </div>
+              {{/each}}
+            {{else}}
+              <p class="text-muted">No trips available.</p>
+            {{/if}}
+          </div>
         </div>
       </div>
     </div>
   </div>
-
-  <script>
-    document.getElementById('ride-search-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      console.log('Search submitted with filters:', {
-        resort: document.getElementById('resort').value,
-        pass: document.querySelector('input[name="pass"]:checked')?.value,
-        time: document.getElementById('time').value,
-        priceRange: document.getElementById('priceRange').value,
-        availableSeats: document.getElementById('availableSeats').value
-      });
-    });
-  </script>
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
