@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS driverInfo;
 CREATE TABLE driverInfo(
     driverID SERIAL PRIMARY KEY,
     username VARCHAR(60) NOT NULL,
-    AVG_Rating FLOAT(10),
+    AVG_Rating FLOAT(10)
 );
 
 DROP TABLE IF EXISTS driverRatings;
@@ -31,14 +31,14 @@ CREATE TABLE car(
     model VARCHAR(50) NOT NULL,
     color VARCHAR(50) NOT NULL,
     carType VARCHAR(50) NOT NULL,
-    drivetrain VARCHAR(50) NOT NULL,
+    drivetrain VARCHAR(50) NOT NULL
 );
 
 DROP TABLE IF EXISTS riderInfo;
 CREATE TABLE riderInfo(
     riderID SERIAL PRIMARY KEY,
     username VARCHAR(60) NOT NULL,
-    AVG_Rating FLOAT(10),
+    AVG_Rating FLOAT(10)
 );
 
 DROP TABLE IF EXISTS riderRatings;
@@ -92,6 +92,6 @@ CREATE TABLE message(
     chatroomID INTEGER NOT NULL,
     date DATE NOT NULL,
     time TIME NOT NULL,
-    user VARCHAR(50) NOT NULL,
+    username VARCHAR(50) NOT NULL,
     message VARCHAR(500) NOT NULL
 );

@@ -20,7 +20,7 @@ INSERT INTO car (licensePlate, ownerID, make, model, color, carType, drivetrain)
 ('XYZ789', 2, 'Honda', 'Civic', 'Red', 'Sedan', '4WD');
 
 -- Insert fake entries into the riderInfo table
-INSERT INTO riderInfo (username, AVG-Rating) VALUES
+INSERT INTO riderInfo (username, AVG_Rating) VALUES
 ('mike_brown', 5),
 ('jane_smith', 4);
 
@@ -50,6 +50,6 @@ INSERT INTO resort (name, location, pass) VALUES
 ('Vail', 'Colorado', 'Epic');
 
 -- Insert fake entries into the message table
-INSERT INTO message (chatroomID, date, time, user, message) VALUES
+INSERT INTO message (chatroomID, date, time, username, message) VALUES
 (1, '2023-10-01', '12:00:00', 'john_doe', 'Hello, are you ready for the trip?'),
 (2, '2023-10-02', '13:00:00', 'jane_smith', 'Yes, I will be there on time.');
