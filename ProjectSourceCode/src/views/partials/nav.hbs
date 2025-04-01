@@ -1,27 +1,31 @@
 <header>
- <nav class="navbar navbar-expand-sm border-bottom">
-   <div class="container">
-     <button
-       class="navbar-toggler ms-auto"
-       type="button"
-       data-bs-toggle="collapse"
-       data-bs-target="#navbar-collapse"
-       aria-controls="navbar"
-       aria-expanded="false"
-       aria-label="Toggle navigation">
-       <span class="navbar-toggler-icon"></span>
-     </button>
-     <div class="collapse navbar-collapse" id="navbar-collapse">
-       <ul class="navbar-nav me-auto">
-         <li class="nav-item">
-           <a class="nav-link" href="/profile">Profile</a>
-         </li>
-       </ul>
-       <div class="nav-item me-1">
-         <!-- TODO: For Logout, add a <a> tag with an attribute href to call the '/logout API -->
-            <a class="nav-link" href="/logout">Logout</a>
-       </div>
-     </div>
-   </div>
- </nav>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
+      <a class="navbar-brand" href="/"></a>
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/driver">Drive</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/rider">Find a Ride</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{#if email}}/logout{{else}}/login{{/if}}">{{#if email}}Log out{{else}}Log in{{/if}}</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="navbar-collapse collapse order-3 dual-collapse2">
+      <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+              <a class="nav-link" href="#">
+              {{email}}
+              </a>
+          </li>
+      </ul>
+    </div>
+  </nav>
 </header>
