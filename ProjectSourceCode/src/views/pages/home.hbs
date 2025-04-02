@@ -22,6 +22,12 @@
             margin: 0;
             font-size: 36px;
         }
+        header img {
+            width: 60%;
+            display: block;
+            margin: 10px auto;
+            border-radius: 10px;
+        }
         section.introduction {
             padding: 20px;
             text-align: center;
@@ -39,7 +45,9 @@
         }
         section.features {
             display: flex;
-            justify-content: space-around;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
             padding: 30px;
             background-color: #f4f4f9;
         }
@@ -50,11 +58,7 @@
             width: 30%;
             text-align: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        section.features .feature img {
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
+            min-width: 280px;
         }
         section.features .feature h3 {
             font-size: 24px;
