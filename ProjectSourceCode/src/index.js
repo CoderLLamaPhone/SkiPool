@@ -56,10 +56,11 @@ db.connect()
 // <!-- Section 3 : App Settings -->
 // *****************************************************
 
-const PORT = process.env.PORT || 3000;
+//const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Website is running on http://localhost:${PORT}`);
 });
+module.exports = app.listen(PORT);
 
 // Register `hbs` as our view engine using its bound `engine()` function.
 app.engine('hbs', hbs.engine);
@@ -87,6 +88,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
   res.render('pages/home');
+});
+
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
 });
 
 app.get('/login', (req, res) => {
