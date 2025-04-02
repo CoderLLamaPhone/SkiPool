@@ -2,14 +2,14 @@ DROP TABLE IF EXISTS "user";
 CREATE TABLE "user"(
     username VARCHAR(50) PRIMARY KEY,
     password VARCHAR(60) NOT NULL,
-    email VARCHAR(200) NOT NULL
+    email VARCHAR(200)
 );
 
 DROP TABLE IF EXISTS driverInfo;
 CREATE TABLE driverInfo(
     driverID SERIAL PRIMARY KEY,
     username VARCHAR(60) NOT NULL,
-    AVG-Rating FLOAT(10),
+    avgRating FLOAT(10)
 );
 
 DROP TABLE IF EXISTS driverRatings;
@@ -37,7 +37,7 @@ DROP TABLE IF EXISTS riderInfo;
 CREATE TABLE riderInfo(
     riderID SERIAL PRIMARY KEY,
     username VARCHAR(60) NOT NULL,
-    AVG-Rating FLOAT(10),
+    avgRating FLOAT(10)
 );
 
 DROP TABLE IF EXISTS riderRatings;
@@ -62,12 +62,12 @@ CREATE TABLE trips(
     driverID INTEGER NOT NULL,
     capacity INTEGER NOT NULL,
     resort VARCHAR(50) NOT NULL,
-    EST-outbound TIME,
-    EST-return TIME,
+    estOutbound TIME,
+    estReturn TIME,
     cost INTEGER NOT NULL,
     pickupLocation VARCHAR(50) NOT NULL,
     date DATE NOT NULL,
-    car VARCHAR(50) NOT NULL,
+    car VARCHAR(50) NOT NULL
 );
 
 DROP TABLE IF EXISTS chatroom;
@@ -89,6 +89,6 @@ CREATE TABLE message(
     chatroomID INTEGER NOT NULL,
     date DATE NOT NULL,
     time TIME NOT NULL,
-    user VARCHAR(50) NOT NULL,
+    username VARCHAR(50) NOT NULL,
     message VARCHAR(500) NOT NULL
 );

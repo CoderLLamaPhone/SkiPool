@@ -181,7 +181,7 @@ app.post('/register', async (req, res) => {
   try {
     const hash = await bcrypt.hash(req.body.password, 10);
     const query =
-      'INSERT INTO users_db (username, password) VALUES ($1, $2) RETURNING *';
+      'INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING *';
     const insertData = await db.one(query, [req.body.username, hash]);
     console.log('Inserted values:', insertData);
     res.redirect('/login');
@@ -195,7 +195,7 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    const query = 'SELECT * FROM users_db WHERE username = $1';
+    const query = 'SELECT * FROM "user" WHERE username = $1';
     const user = await db.oneOrNone(query, [username]);
 
     if (!user) {
@@ -245,5 +245,53 @@ app.get('/logout', (req, res) => {
   // send message to the client
     res.render('pages/logout', {message: 'You have been logged out successfully'});
   });
+});
+
+app.get('/profile', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const username = req.session.user.username;
+
+  try {
+    const user = await db.one('SELECT * FROM "user" WHERE username = $1', [username]);
+
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+
+    let trips = [];
+    let pastTrips = [];
+    let upcomingTrips = [];
+    let avgRating = null;
+    const today = new Date();
+
+    if (driver) {
+      const driverID = driver.driverid;
+      avgRating = driver.avg_rating;
+
+      trips = await db.any(`
+        SELECT t.date, t.resort, r.location
+        FROM trips t
+        JOIN resort r ON t.resort = r.name
+        WHERE t.driverid = $1
+        ORDER BY t.date DESC
+      `, [driverID]);
+
+      pastTrips = trips.filter(trip => new Date(trip.date) < today);
+      upcomingTrips = trips.filter(trip => new Date(trip.date) >= today);
+    }
+
+    res.render('pages/profile', {
+      user,
+      avgRating,
+      pastTrips,
+      upcomingTrips,
+      hasIkonPass: true 
+    });
+
+  } catch (err) {
+    console.error('Error loading profile:', err);
+    res.status(500).send("Server error");
+  }
 });
 
