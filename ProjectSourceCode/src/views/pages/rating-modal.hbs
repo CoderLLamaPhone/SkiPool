@@ -1,0 +1,64 @@
+<!-- Driver Rating Modal -->
+<div id="driverRatingModal" class="modal" style="display: none;">
+  <div class="modal-content card">
+    <span class="close" onclick="document.getElementById('driverRatingModal').style.display='none'">&times;</span>
+    <h2>We hope your trip went great! </h2>
+    <p>You just completed your ride to <strong>Breckenridge</strong>. Let's take a moment to rate your passengers.</p>
+
+    <!-- Example Passenger -->
+    <div class="rating-section">
+      <h3>Passenger: <strong>Sarah_23</strong></h3>
+      <p>How was your experience riding with Sarah?</p>
+      
+      <div class="star-rating">
+        <input type="radio" name="sarah_rating" id="sarah_5" value="5"><label for="sarah_5">&#9733;</label>
+        <input type="radio" name="sarah_rating" id="sarah_4" value="4"><label for="sarah_4">&#9733;</label>
+        <input type="radio" name="sarah_rating" id="sarah_3" value="3"><label for="sarah_3">&#9733;</label>
+        <input type="radio" name="sarah_rating" id="sarah_2" value="2"><label for="sarah_2">&#9733;</label>
+        <input type="radio" name="sarah_rating" id="sarah_1" value="1"><label for="sarah_1">&#9733;</label>
+      </div>
+
+    </div>
+
+    <button onclick="submitDriverRating()">Submit Ratings</button>
+  </div>
+</div>
+
+
+<!-- For when we start implementing the functionality, this will replace above filler. -->
+
+<!-- <h1>Thanks for completing your trip to {{trip.resort}}! </h1>
+
+{{#if isDriver}}
+  <p>Let's give your passengers some love!</p>
+  {{#each passengers}}
+    <div class="rating-card">
+      <h3>{{this.username}}</h3>
+      <div class="star-rating">
+        {{#each (reverseStars 5)}}
+          <input type="radio" name="{{../this.username}}_rating" id="{{../this.username}}_{{this}}" value="{{this}}">
+          <label for="{{../this.username}}_{{this}}">&#9733;</label>
+        {{/each}}
+      </div>
+      <textarea placeholder="Say something nice (optional)"></textarea>
+    </div>
+  {{/each}}
+  <button onclick="alert('Ratings submitted!')">Submit Ratings</button>
+
+{{else}}
+  <p>Let us know how {{driver}} did as your driver!</p>
+  <div class="rating-card">
+    <div class="star-rating">
+      {{#each (reverseStars 5)}}
+        <input type="radio" name="driver_rating" id="driver_{{this}}" value="{{this}}">
+        <label for="driver_{{this}}">&#9733;</label>
+      {{/each}}
+    </div>
+    <textarea placeholder="Compliments or feedback? (Optional)"></textarea>
+  </div>
+  <button onclick="alert('Rating submitted!')">Submit Rating</button>
+{{/if}}
+
+-->
+
+
