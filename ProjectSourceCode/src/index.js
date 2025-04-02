@@ -54,6 +54,8 @@ app.listen(PORT, () => {
   console.log(`Website is running on http://localhost:${PORT}`);
 });
 
+  // Serve static files from the `resources` directory.
+  app.use('/resources', express.static(path.join(__dirname, 'resources')));
 // Register `hbs` as our view engine using its bound `engine()` function.
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
@@ -62,6 +64,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Use body-parser for parsing JSON and URL-encoded data.
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
 
 // initialize session variables
 app.use(
@@ -74,22 +77,22 @@ app.use(
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// *****************************************************
-// <!-- Section 4 : API Routes -->
-// *****************************************************
-
-app.get('/', (req, res) => {
-  res.render('pages/home');
+  // *****************************************************
+  // <!-- Section 4 : API Routes -->
+  // *****************************************************
+  // Index
+  app.get('/', (req, res) => {
+    res.redirect('/login');
 });
 
-app.get('/login', (req, res) => {
-  res.render('pages/login');
+//Login
+app.get('/login', (req, res) =>{
+    res.render('pages/login');
 });
-
-hbs.handlebars.registerHelper('eq', function (a, b) {
-  return a === b;
+//Register
+app.get('/register', (req, res) => {
+    res.render('pages/register');
 });
-
 
 app.get('/rider', async (req, res) => {
   try {
@@ -178,7 +181,7 @@ app.post('/register', async (req, res) => {
   try {
     const hash = await bcrypt.hash(req.body.password, 10);
     const query =
-      'INSERT INTO users_db (username, password) VALUES ($1, $2) RETURNING *';
+      'INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING *';
     const insertData = await db.one(query, [req.body.username, hash]);
     console.log('Inserted values:', insertData);
     res.redirect('/login');
@@ -188,10 +191,11 @@ app.post('/register', async (req, res) => {
   }
 });
 
+// Login API
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    const query = 'SELECT * FROM users_db WHERE username = $1';
+    const query = 'SELECT * FROM "user" WHERE username = $1';
     const user = await db.oneOrNone(query, [username]);
 
     if (!user) {
@@ -213,3 +217,81 @@ app.post('/login', async (req, res) => {
     res.render('pages/login', { error: 'An error occurred. Please try again.' });
   }
 });
+
+    // Authentication Middleware.
+    // const auth = (req, res, next) => {
+    //   if (!req.session.user) {
+    //     // Default to login page.
+    //     return res.redirect('/login');
+    //   }
+    //   next();
+    // };
+    
+    // Authentication Required before Profile, Drivers, Riders and Logout
+
+  //Profile
+app.get('/profile', (req, res) => {
+  res.render('pages/profile');
+});
+
+//Drivers Page(s)
+
+//Ride Page(s)
+
+// Logout
+app.get('/logout', (req, res) => {
+  console.log('Logout');
+  req.session.destroy(function(err) {
+  // send message to the client
+    res.render('pages/logout', {message: 'You have been logged out successfully'});
+  });
+});
+
+app.get('/profile', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const username = req.session.user.username;
+
+  try {
+    const user = await db.one('SELECT * FROM "user" WHERE username = $1', [username]);
+
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+
+    let trips = [];
+    let pastTrips = [];
+    let upcomingTrips = [];
+    let avgRating = null;
+    const today = new Date();
+
+    if (driver) {
+      const driverID = driver.driverid;
+      avgRating = driver.avg_rating;
+
+      trips = await db.any(`
+        SELECT t.date, t.resort, r.location
+        FROM trips t
+        JOIN resort r ON t.resort = r.name
+        WHERE t.driverid = $1
+        ORDER BY t.date DESC
+      `, [driverID]);
+
+      pastTrips = trips.filter(trip => new Date(trip.date) < today);
+      upcomingTrips = trips.filter(trip => new Date(trip.date) >= today);
+    }
+
+    res.render('pages/profile', {
+      user,
+      avgRating,
+      pastTrips,
+      upcomingTrips,
+      hasIkonPass: true 
+    });
+
+  } catch (err) {
+    console.error('Error loading profile:', err);
+    res.status(500).send("Server error");
+  }
+});
+

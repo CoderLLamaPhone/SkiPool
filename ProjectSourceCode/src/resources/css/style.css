@@ -1,0 +1,71 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #f2f2f2;
+  }
+
+  .test {
+    background-color: rgb(201, 238, 239);
+    margin: auto;
+    width: 50%;
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+
+  .card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+  }
+  .profile-container {
+    display: flex;
+    align-items: flex-start;
+  }
+  .profile-image {
+    margin-right: 20px;
+  }
+  .profile-image img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  .profile-details {
+    flex: 1;
+  }
+  .profile-details h1 {
+    margin: 0 0 10px;
+  }
+  .profile-details p {
+    margin: 5px 0;
+  }
+  .rating-stars {
+    font-size: 24px;
+    color: gold;
+  }
+  .trips-section {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .trips-section .card {
+    flex: 1;
+    min-width: 280px;
+  }
+  .trips-section h3 {
+    margin: 0 0 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+  }
+  .trip {
+    border: 1px solid #eee;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+  }
+
