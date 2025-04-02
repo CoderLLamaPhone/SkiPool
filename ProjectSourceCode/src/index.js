@@ -13,6 +13,14 @@ const session = require('express-session'); // To set the session object.
 const bcrypt = require('bcryptjs'); // To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server
 
+Handlebars.registerHelper('stars', function(rating) {
+  const stars = [];
+  for (let i = 0; i < 5; i++) {
+    stars.push(i < Math.round(rating));
+  }
+  return stars;
+});
+
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
@@ -32,6 +40,15 @@ const dbConfig = {
   user: process.env.POSTGRES_USER, // the user account to connect with
   password: process.env.POSTGRES_PASSWORD, // the password of the user account
 };
+
+(async () => {
+  const pw1 = await bcrypt.hash('password123', 10);
+  const pw2 = await bcrypt.hash('securepass456', 10);
+  const pw3 = await bcrypt.hash('mikepass789', 10);
+
+  console.log({ pw1, pw2, pw3 });
+})();
+
 
 const db = pgp(dbConfig);
 
@@ -229,10 +246,7 @@ app.post('/login', async (req, res) => {
     
     // Authentication Required before Profile, Drivers, Riders and Logout
 
-  //Profile
-app.get('/profile', (req, res) => {
-  res.render('pages/profile');
-});
+  
 
 //Drivers Page(s)
 

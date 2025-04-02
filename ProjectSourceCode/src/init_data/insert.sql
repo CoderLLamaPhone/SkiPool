@@ -1,8 +1,8 @@
 -- Insert fake entries into the "user" table
 INSERT INTO "user" (username, password, email) VALUES
-('john_doe', 'password123', 'john.doe@fake.com'),
-('jane_smith', 'securepass456', 'jane.smith@fake.com'),
-('mike_brown', 'mikepass789', 'mike.brown@fake.com');
+('john_doe', '$2a$10$XPktaBSFAOis4TbohF1F1e9avYUKNqXZ3VujnFjSrK1tDtHRL8oDy', 'john.doe@fake.com'),
+('jane_smith', '$2a$10$1ft5g8Bp0D5YMufp.xg11.W.fukeiwCvEL7fuP6qij8.ODsgG13O.', 'jane.smith@fake.com'),
+('mike_brown', '$2a$10$aWR8.I8JXfHkhgCCUEMk0O3BQH34YYZKJ5i1P.hBIj3Fc6835Q8oO', 'mike.brown@fake.com');
 
 -- Insert fake entries into the driverInfo table
 INSERT INTO driverInfo (username, AVG_Rating) VALUES
@@ -20,7 +20,7 @@ INSERT INTO car (licensePlate, ownerID, make, model, color, carType, drivetrain)
 ('XYZ789', 2, 'Honda', 'Civic', 'Red', 'Sedan', '4WD');
 
 -- Insert fake entries into the riderInfo table
-INSERT INTO riderInfo (username, AVG-Rating) VALUES
+INSERT INTO riderInfo (username, AVG_Rating) VALUES
 ('mike_brown', 5),
 ('jane_smith', 4);
 
@@ -50,6 +50,6 @@ INSERT INTO resort (name, location, pass) VALUES
 ('Vail', 'Colorado', 'Epic');
 
 -- Insert fake entries into the message table
-INSERT INTO message (chatroomID, date, time, user, message) VALUES
+INSERT INTO message (chatroomID, date, time, username, message) VALUES
 (1, '2023-10-01', '12:00:00', 'john_doe', 'Hello, are you ready for the trip?'),
 (2, '2023-10-02', '13:00:00', 'jane_smith', 'Yes, I will be there on time.');
