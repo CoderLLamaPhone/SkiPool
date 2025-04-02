@@ -213,3 +213,47 @@ app.post('/login', async (req, res) => {
     res.render('pages/login', { error: 'An error occurred. Please try again.' });
   }
 });
+
+app.get('/rate/:tripID', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const { tripID } = req.params;
+  const username = req.session.user.username;
+
+  try {
+    // Get trip details
+    const trip = await db.one('SELECT * FROM trips WHERE tripID = $1', [tripID]);
+
+    // Get driver info
+    const driver = await db.one('SELECT username FROM driverInfo WHERE driverID = $1', [trip.driverid]);
+
+    // Check if current user is the driver or a passenger
+    const isDriver = username === driver.username;
+
+    // Get passenger usernames (for driver to rate)
+    const passengerIDs = await db.any('SELECT passenger FROM passengers WHERE tripID = $1', [tripID]);
+
+    let passengers = [];
+
+    if (passengerIDs.length > 0) {
+      passengers = await db.any(
+        'SELECT username FROM riderInfo WHERE riderID IN ($1:csv)',
+        [passengerIDs.map(p => p.passenger)]
+      );
+    }
+
+    res.render('pages/rateTrip', {
+      isDriver,
+      trip,
+      driver: driver.username,
+      passengers,
+      user: req.session.user.username
+    });
+
+  } catch (err) {
+    console.error('Error loading rating modal data:', err);
+    res.status(500).send('Server error loading rating info');
+  }
+});
