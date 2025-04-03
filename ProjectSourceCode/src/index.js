@@ -75,11 +75,7 @@ app.use(
   })
 );
 
-app.use(
-    bodyParser.urlencoded({
-      extended: true,
-    })
-  );
+app.use(express.static(path.join(__dirname, 'public')));
 
   // *****************************************************
   // <!-- Section 4 : API Routes -->
@@ -93,9 +89,88 @@ app.use(
 app.get('/login', (req, res) =>{
     res.render('pages/login');
 });
+//Register
+app.get('/register', (req, res) => {
+    res.render('pages/register');
+});
 
-app.get('/rider', (req, res) =>{
-  res.render('pages/findARide');
+app.get('/rider', async (req, res) => {
+  try {
+    // let trips = await db.any('SELECT * FROM trips');
+
+    let trips = []
+
+    if (trips.length === 0) {
+      trips = [
+        {
+          tripID: 1,
+          driver: 'Alice',
+          pickupLocation: 'Denver, CO',
+          departureTime: '2025-02-20T08:00',
+          cost: 35,
+          gearSpace: 'Limited gear space',
+          availableSeats: 2,
+          additionalInfo: 'Non-smoking vehicle, friendly driver.',
+          resort: 'breckenridge',
+          pass: 'ikon'
+        },
+        {
+          tripID: 2,
+          driver: 'Bob',
+          pickupLocation: 'Boulder, CO',
+          departureTime: '2025-02-21T09:30',
+          cost: 25,
+          gearSpace: 'Plenty of room for skis and snowboards',
+          availableSeats: 1,
+          additionalInfo: 'Please bring your own masks.',
+          resort: 'vail',
+          pass: 'epic'
+        },
+        {
+          tripID: 3,
+          driver: 'Charlie',
+          pickupLocation: 'Aspen, CO',
+          departureTime: '2025-02-22T07:45',
+          cost: 40,
+          gearSpace: 'Ample space, can carry extra gear',
+          availableSeats: 3,
+          additionalInfo: 'Music allowed. Temperature controlled car.',
+          resort: 'aspensnowmass',
+          pass: 'ikon'
+        }
+      ];
+    }
+    
+    const { resort, pass, time, priceRange, availableSeats } = req.query;
+    if (resort) {
+      trips = trips.filter(trip => trip.resort === resort);
+    }
+    if (pass) {
+      trips = trips.filter(trip => trip.pass === pass);
+    }
+    if (time) {
+      trips = trips.filter(trip => trip.departureTime === time);
+    }
+    if (priceRange) {
+      trips = trips.filter(trip => trip.cost <= Number(priceRange));
+    }
+    if (availableSeats) {
+      trips = trips.filter(trip => trip.availableSeats >= Number(availableSeats));
+    }
+    
+    res.render('pages/findARide', {
+      trips,
+      resort: req.query.resort || "",
+      pass: req.query.pass || "",
+      time: req.query.time || "",
+      priceRange: req.query.priceRange || "",
+      availableSeats: req.query.availableSeats || ""
+    });
+
+  } catch (error) {
+    console.error('Error fetching trips:', error);
+    res.render('pages/findARide', { trips: [] });
+  }
 });
 
 app.get('/driver', (req, res) => {
@@ -219,4 +294,3 @@ app.get('/profile', async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-
