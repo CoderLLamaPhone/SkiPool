@@ -37,33 +37,31 @@
                 <label for="resort" class="form-label">Ski Resort</label>
                 <select id="resort" name="resort" class="form-select">
                   <option value="">--Select a Resort--</option>
-                  <option value="breckenridge" {{#if (eq resort "breckenridge")}}selected{{/if}}>Breckenridge, CO</option>
-                  <option value="vail" {{#if (eq resort "vail")}}selected{{/if}}>Vail, CO</option>
-                  <option value="aspensnowmass" {{#if (eq resort "aspensnowmass")}}selected{{/if}}>Aspen Snowmass, CO</option>
-                  <option value="telluride" {{#if (eq resort "telluride")}}selected{{/if}}>Telluride, CO</option>
+                  <option value="Aspen" {{#if (eq resort "Aspen")}}selected{{/if}}>Aspen, CO</option>
+                  <option value="Vail" {{#if (eq resort "Vail")}}selected{{/if}}>Vail, CO</option>
                 </select>
               </div>
               <div class="mb-3">
                 <label class="form-label">Pass Type</label>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" id="ikon" name="pass" value="ikon" {{#if (eq pass "ikon")}}checked{{/if}}>
+                  <input class="form-check-input" type="radio" id="ikon" name="pass" value="Ikon" {{#if (eq pass "Ikon")}}checked{{/if}}>
                   <label class="form-check-label" for="ikon">Ikon</label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" id="epic" name="pass" value="epic" {{#if (eq pass "epic")}}checked{{/if}}>
+                  <input class="form-check-input" type="radio" id="epic" name="pass" value="Epic" {{#if (eq pass "Epic")}}checked{{/if}}>
                   <label class="form-check-label" for="epic">Epic</label>
                 </div>
               </div>
               <div class="mb-3">
-                <label for="time" class="form-label">Departure Date</label>
-                <input type="date" id="time" name="time" class="form-control" value="{{time}}">
+                <label for="date" class="form-label">Departure Date</label>
+                <input type="date" id="date" name="date" class="form-control" value="{{date}}">
               </div>
               <div class="mb-3">
                 <label for="price" class="form-label">Maximum Price ($)</label>
                 <input type="number" id="price" name="priceRange" class="form-control" min="0" max="100" value="{{priceRange}}">
               </div>
               <div class="mb-3">
-                <label for="availableSeats" class="form-label">Minimum available seats</label>
+                <label for="availableSeats" class="form-label">Minimum Available Seats</label>
                 <input type="number" id="availableSeats" name="availableSeats" class="form-control" min="1" max="6" value="{{availableSeats}}">
               </div>
               <button type="submit" class="btn btn-primary w-100">Search</button>
@@ -84,26 +82,26 @@
                   <div class="row g-0 align-items-center">
                     <div class="col-md-2 d-flex flex-column align-items-center justify-content-center p-3">
                       <div class="circle-placeholder mb-2">
-                        {{#if driver}}{{driver.[0]}}{{else}}N/A{{/if}}
+                        {{initials}}
                       </div>
                       <div class="text-center">
-                        <small class="fw-bold">{{driver}}</small><br>
-                        <small>ID: {{tripID}}</small>
+                        <small class="fw-bold">Driver: {{username}}</small><br>
+                        <small>Trip ID: {{tripid}}</small>
                       </div>
                     </div>
                     <div class="col-md-8">
                       <div class="row trip-details">
                         <div class="col-md-6">
-                          <p><strong>Pickup Location:</strong> {{pickupLocation}}</p>
-                          <p><strong>Departure Date:</strong> {{departureDate}}</p>
-                          <p><strong>Price ($):</strong> {{cost}}</p>
-                          <p><strong>Gear Space:</strong> {{gearSpace}}</p>
+                          <p><strong>Pickup Location:</strong> {{pickuplocation}}</p>
+                          <p><strong>Departure Date:</strong> {{date}}</p>
+                          <p><strong>Departure Time:</strong> {{est_outbound}}</p>
+                          <p><strong>Return Time:</strong> {{est_return}}</p>
                         </div>
                         <div class="col-md-6">
                           <p><strong>Min. Available Seats:</strong> {{availableSeats}}</p>
-                          <p><strong>Additional Info:</strong> {{additionalInfo}}</p>
                           <p><strong>Resort:</strong> {{resort}}</p>
                           <p><strong>Pass:</strong> {{pass}}</p>
+                          <p><strong>Price ($):</strong> {{cost}}</p>
                         </div>
                       </div>
                     </div>
