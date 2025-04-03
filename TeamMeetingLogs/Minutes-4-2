@@ -1,0 +1,16 @@
+Introduction:
+- Release Logs: includes what is updated in the main branch each week
+
+Things that we have done:
+- Colin implemented the register and login page
+- Jeremy worked on the Find a Ride page to list fake data and filter the entries
+- Kerem added all the fake data, worked on Docker issues, and reviewed PRs
+- Rogan worked on the home page and worked on the styling and buttons
+- Shane worked on the profile form and helped with merge conflicts
+
+Plans for next week:
+- Colin plans on getting the profile page to have a functional edit button
+- Jeremy will create the sign-up modal for the Find a Ride page
+- Kerem will work on the chatroom
+- Rogan -> TBD
+- Shane -> TBD
