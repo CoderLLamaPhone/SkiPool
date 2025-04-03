@@ -7,6 +7,7 @@ Things that we have done:
 - Kerem added all the fake data, worked on Docker issues, and reviewed PRs
 - Rogan worked on the home page and worked on the styling and buttons
 - Shane worked on the profile form and helped with merge conflicts
+- Manav worked on the drivers page modal, the navbar, and the partials
 
 Plans for next week:
 - Colin plans on getting the profile page to have a functional edit button
@@ -14,3 +15,4 @@ Plans for next week:
 - Kerem will work on the chatroom
 - Rogan -> TBD
 - Shane -> TBD
+- Manav will implement endpoints for the drivers page
