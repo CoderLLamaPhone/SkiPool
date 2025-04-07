@@ -249,3 +249,76 @@ app.post('/login', async (req, res) => {
     res.render('pages/login', { error: 'An error occurred. Please try again.' });
   }
 });
+
+    // Authentication Middleware.
+    // const auth = (req, res, next) => {
+    //   if (!req.session.user) {
+    //     // Default to login page.
+    //     return res.redirect('/login');
+    //   }
+    //   next();
+    // };
+    
+    // Authentication Required before Profile, Drivers, Riders and Logout
+
+
+//Drivers Page(s)
+
+//Ride Page(s)
+
+// Logout
+app.get('/logout', (req, res) => {
+  console.log('Logout');
+  req.session.destroy(function(err) {
+  // send message to the client
+    res.render('pages/logout', {message: 'You have been logged out successfully'});
+  });
+});
+
+app.get('/profile', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const username = req.session.user.username;
+
+  try {
+    const user = await db.one('SELECT * FROM "user" WHERE username = $1', [username]);
+
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+
+    let trips = [];
+    let pastTrips = [];
+    let upcomingTrips = [];
+    let avgRating = null;
+    const today = new Date();
+
+    if (driver) {
+      const driverID = driver.driverid;
+      avgRating = driver.avg_rating;
+
+      trips = await db.any(`
+        SELECT t.date, t.resort, r.location
+        FROM trips t
+        JOIN resort r ON t.resort = r.name
+        WHERE t.driverid = $1
+        ORDER BY t.date DESC
+      `, [driverID]);
+
+      pastTrips = trips.filter(trip => new Date(trip.date) < today);
+      upcomingTrips = trips.filter(trip => new Date(trip.date) >= today);
+    }
+
+    res.render('pages/profile', {
+      user,
+      avgRating,
+      pastTrips,
+      upcomingTrips,
+      hasIkonPass: true 
+    });
+
+  } catch (err) {
+    console.error('Error loading profile:', err);
+    res.status(500).send("Server error");
+  }
+});
