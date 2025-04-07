@@ -22,6 +22,13 @@ const hbs = handlebars.create({
   extname: 'hbs',
   layoutsDir: __dirname + '/views/layouts',
   partialsDir: __dirname + '/views/partials',
+  helpers: {
+    formatDate: function(date) {
+      if (!date) return '';
+      // Assuming date is in ISO format, split at 'T' to remove the time portion
+      return date.split('T')[0];
+    }
+  }
 });
 
 // database configuration
@@ -54,8 +61,6 @@ app.listen(PORT, () => {
   console.log(`Website is running on http://localhost:${PORT}`);
 });
 
-  // Serve static files from the `resources` directory.
-  app.use('/resources', express.static(path.join(__dirname, 'resources')));
 // Register `hbs` as our view engine using its bound `engine()` function.
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
@@ -64,7 +69,6 @@ app.set('views', path.join(__dirname, 'views'));
 // Use body-parser for parsing JSON and URL-encoded data.
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 
 // initialize session variables
 app.use(
@@ -77,35 +81,64 @@ app.use(
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-  // *****************************************************
-  // <!-- Section 4 : API Routes -->
-  // *****************************************************
-  // Index
-  app.get('/', (req, res) => {
-    res.redirect('/login');
+// *****************************************************
+// <!-- Section 4 : API Routes -->
+// *****************************************************
+
+app.get('/', (req, res) => {
+  res.render('pages/home');
 });
 
-//Login
-app.get('/login', (req, res) =>{
-    res.render('pages/login');
+app.get('/login', (req, res) => {
+  res.render('pages/login');
 });
-//Register
-app.get('/register', (req, res) => {
-    res.render('pages/register');
+
+hbs.handlebars.registerHelper('eq', function (a, b) {
+  return a === b;
 });
+
 
 app.get('/rider', async (req, res) => {
   try {
-    // let trips = await db.any('SELECT * FROM trips');
+    let trips = await db.any(`
+      SELECT 
+        t.*, 
+        r.pass, 
+        d.username, 
+        (t.capacity - COALESCE(count(p.tripID), 0)) AS "availableSeats"
+      FROM trips t
+      JOIN resort r ON t.resort = r.name
+      JOIN driverInfo d ON t.driverID = d.driverID
+      LEFT JOIN passengers p ON t.tripID = p.tripID
+      GROUP BY 
+        t.tripID, t.driverID, t.capacity, t.resort, 
+        t.EST_outbound, t.EST_return, t.cost, 
+        t.pickupLocation, t.date, t.car, r.pass, d.username
+    `);
 
-    let trips = []
+    trips = trips.map(trip => {
+      // Compute initials from the username (e.g., "John Doe" -> "JD")
+      const initials = trip.username 
+        ? trip.username.split(' ').map(name => name[0]).join('').toUpperCase()
+        : 'N/A';
+
+      return {
+        ...trip,
+        date: trip.date ? new Date(trip.date).toISOString().split('T')[0] : '',
+        initials
+      };
+    });
+    
+
+    console.log(trips)
+
 
     if (trips.length === 0) {
       trips = [
         {
           tripID: 1,
           driver: 'Alice',
-          pickupLocation: 'Denver, CO',
+          pickuplocation: 'Denver, CO',
           departureTime: '2025-02-20T08:00',
           cost: 35,
           gearSpace: 'Limited gear space',
@@ -117,7 +150,7 @@ app.get('/rider', async (req, res) => {
         {
           tripID: 2,
           driver: 'Bob',
-          pickupLocation: 'Boulder, CO',
+          pickuplocation: 'Boulder, CO',
           departureTime: '2025-02-21T09:30',
           cost: 25,
           gearSpace: 'Plenty of room for skis and snowboards',
@@ -129,7 +162,7 @@ app.get('/rider', async (req, res) => {
         {
           tripID: 3,
           driver: 'Charlie',
-          pickupLocation: 'Aspen, CO',
+          pickuplocation: 'Aspen, CO',
           departureTime: '2025-02-22T07:45',
           cost: 40,
           gearSpace: 'Ample space, can carry extra gear',
@@ -149,7 +182,7 @@ app.get('/rider', async (req, res) => {
       trips = trips.filter(trip => trip.pass === pass);
     }
     if (time) {
-      trips = trips.filter(trip => trip.departureTime === time);
+      trips = trips.filter(trip => trip.EST_outbound === time);
     }
     if (priceRange) {
       trips = trips.filter(trip => trip.cost <= Number(priceRange));
@@ -181,7 +214,7 @@ app.post('/register', async (req, res) => {
   try {
     const hash = await bcrypt.hash(req.body.password, 10);
     const query =
-      'INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING *';
+      'INSERT INTO users_db (username, password) VALUES ($1, $2) RETURNING *';
     const insertData = await db.one(query, [req.body.username, hash]);
     console.log('Inserted values:', insertData);
     res.redirect('/login');
@@ -191,11 +224,10 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Login API
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    const query = 'SELECT * FROM "user" WHERE username = $1';
+    const query = 'SELECT * FROM users_db WHERE username = $1';
     const user = await db.oneOrNone(query, [username]);
 
     if (!user) {
@@ -229,10 +261,6 @@ app.post('/login', async (req, res) => {
     
     // Authentication Required before Profile, Drivers, Riders and Logout
 
-  //Profile
-app.get('/profile', (req, res) => {
-  res.render('pages/profile');
-});
 
 //Drivers Page(s)
 
