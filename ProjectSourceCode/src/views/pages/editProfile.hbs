@@ -1,0 +1,118 @@
+<style>
+  form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: sans-serif;
+  }
+
+  h2, h3 {
+    text-align: center;
+    color: #333;
+  }
+
+  label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 600;
+    color: #222;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+
+  .checkbox-group {
+    margin-top: 15px;
+  }
+
+  .checkbox-group label {
+    display: inline-block;
+    margin-right: 20px;
+    font-weight: normal;
+  }
+
+  button[type="submit"] {
+    margin-top: 25px;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #3c78d8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  button[type="submit"]:hover {
+    background-color: #2e5cad;
+  }
+</style>
+
+<h2>Edit Profile</h2>
+<form action="/profile/edit" method="POST">
+  <h3>Personal Info</h3>
+
+  <label>Email:
+    <input type="email" name="email" value="{{user.email}}" required>
+  </label>
+
+  <label>About Me:
+    <textarea name="about_me">{{user.about_me}}</textarea>
+  </label>
+
+  <div class="checkbox-group">
+    <label><input type="checkbox" name="epic_pass" {{#if user.epic_pass}}checked{{/if}}> Epic Pass</label>
+    <label><input type="checkbox" name="ikon_pass" {{#if user.ikon_pass}}checked{{/if}}> Ikon Pass</label>
+  </div>
+
+  <label>Favorite Mountains:
+    <input type="text" name="fav_mountains" value="{{user.fav_mountains}}">
+  </label>
+
+  {{#if car}}
+    <h3>Car Info</h3>
+
+    <label>Make:
+      <input type="text" name="make" value="{{car.make}}">
+    </label>
+
+    <label>Model:
+      <input type="text" name="model" value="{{car.model}}">
+    </label>
+
+    <label>Color:
+      <input type="text" name="color" value="{{car.color}}">
+    </label>
+
+    <label>Type:
+      <input type="text" name="carType" value="{{car.cartype}}">
+    </label>
+
+    <label>Drivetrain:
+      <input type="text" name="drivetrain" value="{{car.drivetrain}}">
+    </label>
+
+    <label>License Plate:
+      <input type="text" name="licensePlate" value="{{car.licenseplate}}">
+    </label>
+  {{/if}}
+
+  <button type="submit">Save Changes</button>
+</form>
