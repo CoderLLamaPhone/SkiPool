@@ -94,10 +94,6 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
-app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
-});
-
 app.get('/login', (req, res) => {
   res.render('pages/login');
 });
