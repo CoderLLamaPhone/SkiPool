@@ -6,8 +6,8 @@ INSERT INTO "user" (username, password, email) VALUES
 
 -- Insert fake entries into the driverInfo table
 INSERT INTO driverInfo (username, AVG_Rating) VALUES
-('john_doe', 5),
-('jane_smith', 4);
+('John Doe', 5),
+('Jane Smith', 4);
 
 -- Insert fake entries into the driverRatings table
 INSERT INTO driverRatings (driverID, stars, message, reviewedBy, tripID, date) VALUES
@@ -23,6 +23,11 @@ INSERT INTO car (licensePlate, ownerID, make, model, color, carType, drivetrain)
 INSERT INTO riderInfo (username, AVG_Rating) VALUES
 ('mike_brown', 5),
 ('jane_smith', 4);
+=======
+INSERT INTO riderInfo (riderID, username, AVG_Rating) VALUES
+(1, 'mike_brown', 5),
+(2, 'jane_smith', 4);
+
 
 -- Insert fake entries into the riderRatings table
 INSERT INTO riderRatings (riderID, stars, message, reviewedBy, tripID, date) VALUES
@@ -36,8 +41,8 @@ INSERT INTO passengers (tripID, passenger) VALUES
 
 -- Insert fake entries into the trips table
 INSERT INTO trips (driverID, capacity, resort, EST_outbound, EST_return, cost, pickupLocation, date, car) VALUES
-(1, 4, 'Aspen', '08:00:00', '18:00:00', 50, 'Downtown', '2023-10-01', 'ABC123'),
-(2, 3, 'Vail', '09:00:00', '17:00:00', 40, 'Uptown', '2023-10-02', 'XYZ789');
+(1, 4, 'Aspen', '08:00:00', '18:00:00', 50, 'Downtown', '2025-04-15', 'ABC123'),
+(2, 3, 'Vail', '09:00:00', '17:00:00', 40, 'Uptown', '2025-04-16', 'XYZ789');
 
 -- Insert fake entries into the chatroom table
 INSERT INTO chatroom (driver, passenger) VALUES
