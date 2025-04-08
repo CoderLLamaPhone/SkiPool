@@ -1,0 +1,112 @@
+1) Log in / Register page
+
+Overview: Allows users to authenticate and access the website by entering their credentials. This feature ensures secure access and user verification.
+
+User Acceptance Test Cases: After registering with a username and password, entering the same username and password in the login page causes a successful login. Entering an incorrect password or username
+prompts an error message and causes the login to fail.
+
+Test Data: Register with Username: test_username, Password: test_password
+Log in with the following data:
+Username          Password            Expected Outcome
+---------------------------------------------------------------
+test_username     test_password       Successful login
+test_username     incorrect           Login fails with error message
+incorrect         test_password       Login fails with error message
+does_not_exist    does_not_exist      Login fails with error message
+
+Test Environment: The tests will be conducted on localhost
+
+Test Results: Incorrect test results indicate that the login and/or register features are not working as intended.
+
+User Acceptance Testers:
+Tester Name        Role
+--------------------------------------------------------------
+Manav Shah         Execute test cases and document results
+Colin Wallace      Debug and fix issues based on test reports
+
+Actual Test Results:
+Username          Password            Actual Outcome
+---------------------------------------------------------------
+test_username     test_password       [To be filled]
+test_username     incorrect           [To be filled]
+incorrect         test_password       [To be filled]
+does_not_exist    does_not_exist      [To be filled]
+
+
+2) Find a Ride Filter
+
+Overview: Allows users to filter different rides based on various attributes such as ski pass type, price, departure date, ski resort, and minimum seats.
+
+User Acceptance Test Cases: After filtering based on a specific attribute, the only rides that should appear are those that are included in the filter.
+
+Test Data:
+Filter                                      Expected Outcome
+---------------------------------------------------------------------------------------------------------------
+Set ski resort to Aspen Snowmass            Only rides that go to Aspen Snowmass show up
+Set pass type to Ikon                       Only rides that go to ski resorts that are on the Ikon pass show up
+Set departure date to 4/30/2025             Only rides that depart on 4/30/2025 show up
+Set maximum price to $50                    Only rides that cost $50 or less show up
+Set minimum available seats to 3            Only rides that have at least 3 seats available show up
+
+Test Environment: The tests will be conducted on localhost
+
+Test Results: If any rides show up that are not included in the filter, further debugging needs to be done as the filter feature is not working as intended.
+
+User Acceptance Testers:
+Tester Name        Role
+--------------------------------------------------------------
+Rogan Tinjum       Execute test cases and document results
+Jeremy Huang       Debug and fix issues based on test reports
+
+Actual Test Results:
+Filter                                      Actual Outcome
+------------------------------------------------------------
+Set ski resort to Aspen Snowmass            [To be filled]
+Set pass type to Ikon                       [To be filled]
+Set departure date to 4/30/2025             [To be filled]
+Set maximum price to $50                    [To be filled]
+Set minimum available seats to 3            [To be filled]
+
+
+3) Adding a Drive
+
+Overview: Allows users to create a new drive and enter specific information about their drive such as pickup location, destination resort, departure date, price, available seats, gear space, additional
+info, and pass type.
+
+User Acceptance Test Cases: After entering specific information for a new drive and creating the drive, the drive should show up under "Your trips" with all the information populated, and the drive should
+also show up in the Find a Ride page with the correct information populated.
+
+Test Data:
+Drive                                                      Expected Outcome
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Create a new drive with the following information:         A trip with the same information should appear under "Your trips" and the user should be able to find this trip in the Find a Ride page
+Pickup Location: Engineering Center
+Destination Resort: Arapahoe Basin
+Departure Date: 4/30/2025
+Available Seats: 3
+Gear Space: Available
+Additional Info: Test
+Pass Type: Ikon
+
+Test Environment: The tests will be conducted on localhost
+
+Test Results: If the ride does not show up under "Your trips" or the user is unable to find the ride in the Find a Ride page, further debugging needs to be done as the Create Drive feature may not be
+working as intended.
+
+User Acceptance Testers:
+Tester Name        Role
+--------------------------------------------------------------
+Kerem Gurkan       Execute test cases and document results
+Manav Shah         Debug and fix issues based on test reports
+
+Actual Test Results:
+Drive                                                      Actual Outcome
+-----------------------------------------------------------------------------
+Create a new drive with the following information:         [To be filled]
+Pickup Location: Engineering Center
+Destination Resort: Arapahoe Basin
+Departure Date: 4/30/2025
+Available Seats: 3
+Gear Space: Available
+Additional Info: Test
+Pass Type: Ikon

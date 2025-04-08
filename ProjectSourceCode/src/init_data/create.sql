@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS "user";
 CREATE TABLE "user"(
     username VARCHAR(50) PRIMARY KEY,
     password VARCHAR(60) NOT NULL,
-    email VARCHAR(200) NOT NULL
+    email VARCHAR(200)
 );
 
 DROP TABLE IF EXISTS driverInfo;

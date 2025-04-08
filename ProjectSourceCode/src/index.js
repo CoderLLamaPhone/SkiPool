@@ -22,6 +22,13 @@ const hbs = handlebars.create({
   extname: 'hbs',
   layoutsDir: __dirname + '/views/layouts',
   partialsDir: __dirname + '/views/partials',
+  helpers: {
+    formatDate: function(date) {
+      if (!date) return '';
+      // Assuming date is in ISO format, split at 'T' to remove the time portion
+      return date.split('T')[0];
+    }
+  }
 });
 
 // database configuration
@@ -49,10 +56,11 @@ db.connect()
 // <!-- Section 3 : App Settings -->
 // *****************************************************
 
-const PORT = process.env.PORT || 3000;
+//const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Website is running on http://localhost:${PORT}`);
 });
+module.exports = app.listen(PORT);
 
 // Register `hbs` as our view engine using its bound `engine()` function.
 app.engine('hbs', hbs.engine);
@@ -82,6 +90,10 @@ app.get('/', (req, res) => {
   res.render('pages/home');
 });
 
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
 app.get('/login', (req, res) => {
   res.render('pages/login');
 });
@@ -93,16 +105,45 @@ hbs.handlebars.registerHelper('eq', function (a, b) {
 
 app.get('/rider', async (req, res) => {
   try {
-    // let trips = await db.any('SELECT * FROM trips');
+    let trips = await db.any(`
+      SELECT 
+        t.*, 
+        r.pass, 
+        d.username, 
+        (t.capacity - COALESCE(count(p.tripID), 0)) AS "availableSeats"
+      FROM trips t
+      JOIN resort r ON t.resort = r.name
+      JOIN driverInfo d ON t.driverID = d.driverID
+      LEFT JOIN passengers p ON t.tripID = p.tripID
+      GROUP BY 
+        t.tripID, t.driverID, t.capacity, t.resort, 
+        t.EST_outbound, t.EST_return, t.cost, 
+        t.pickupLocation, t.date, t.car, r.pass, d.username
+    `);
 
-    let trips = []
+    trips = trips.map(trip => {
+      // Compute initials from the username (e.g., "John Doe" -> "JD")
+      const initials = trip.username 
+        ? trip.username.split(' ').map(name => name[0]).join('').toUpperCase()
+        : 'N/A';
+
+      return {
+        ...trip,
+        date: trip.date ? new Date(trip.date).toISOString().split('T')[0] : '',
+        initials
+      };
+    });
+    
+
+    console.log(trips)
+
 
     if (trips.length === 0) {
       trips = [
         {
           tripID: 1,
           driver: 'Alice',
-          pickupLocation: 'Denver, CO',
+          pickuplocation: 'Denver, CO',
           departureTime: '2025-02-20T08:00',
           cost: 35,
           gearSpace: 'Limited gear space',
@@ -114,7 +155,7 @@ app.get('/rider', async (req, res) => {
         {
           tripID: 2,
           driver: 'Bob',
-          pickupLocation: 'Boulder, CO',
+          pickuplocation: 'Boulder, CO',
           departureTime: '2025-02-21T09:30',
           cost: 25,
           gearSpace: 'Plenty of room for skis and snowboards',
@@ -126,7 +167,7 @@ app.get('/rider', async (req, res) => {
         {
           tripID: 3,
           driver: 'Charlie',
-          pickupLocation: 'Aspen, CO',
+          pickuplocation: 'Aspen, CO',
           departureTime: '2025-02-22T07:45',
           cost: 40,
           gearSpace: 'Ample space, can carry extra gear',
@@ -146,7 +187,7 @@ app.get('/rider', async (req, res) => {
       trips = trips.filter(trip => trip.pass === pass);
     }
     if (time) {
-      trips = trips.filter(trip => trip.departureTime === time);
+      trips = trips.filter(trip => trip.EST_outbound === time);
     }
     if (priceRange) {
       trips = trips.filter(trip => trip.cost <= Number(priceRange));
@@ -215,10 +256,6 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/rate/:tripID', async (req, res) => {
-  if (!req.session.user) {
-    return res.redirect('/login');
-  }
-
   const { tripID } = req.params;
   const username = req.session.user.username;
 
@@ -255,5 +292,78 @@ app.get('/rate/:tripID', async (req, res) => {
   } catch (err) {
     console.error('Error loading rating modal data:', err);
     res.status(500).send('Server error loading rating info');
+  }
+});
+
+    // Authentication Middleware.
+    // const auth = (req, res, next) => {
+    //   if (!req.session.user) {
+    //     // Default to login page.
+    //     return res.redirect('/login');
+    //   }
+    //   next();
+    // };
+    
+    // Authentication Required before Profile, Drivers, Riders and Logout
+
+
+//Drivers Page(s)
+
+//Ride Page(s)
+
+// Logout
+app.get('/logout', (req, res) => {
+  console.log('Logout');
+  req.session.destroy(function(err) {
+  // send message to the client
+    res.render('pages/logout', {message: 'You have been logged out successfully'});
+  });
+});
+
+app.get('/profile', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const username = req.session.user.username;
+
+  try {
+    const user = await db.one('SELECT * FROM "user" WHERE username = $1', [username]);
+
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+
+    let trips = [];
+    let pastTrips = [];
+    let upcomingTrips = [];
+    let avgRating = null;
+    const today = new Date();
+
+    if (driver) {
+      const driverID = driver.driverid;
+      avgRating = driver.avg_rating;
+
+      trips = await db.any(`
+        SELECT t.date, t.resort, r.location
+        FROM trips t
+        JOIN resort r ON t.resort = r.name
+        WHERE t.driverid = $1
+        ORDER BY t.date DESC
+      `, [driverID]);
+
+      pastTrips = trips.filter(trip => new Date(trip.date) < today);
+      upcomingTrips = trips.filter(trip => new Date(trip.date) >= today);
+    }
+
+    res.render('pages/profile', {
+      user,
+      avgRating,
+      pastTrips,
+      upcomingTrips,
+      hasIkonPass: true 
+    });
+
+  } catch (err) {
+    console.error('Error loading profile:', err);
+    res.status(500).send("Server error");
   }
 });

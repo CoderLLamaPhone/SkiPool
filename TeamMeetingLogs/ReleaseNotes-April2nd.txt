@@ -1,0 +1,31 @@
+Release Notes - April 2nd
+
+What we've done in the past week:
+
+-Connect home.hbs and register and login w/ button, create action calls in index.js #21 (Rogan)
+-Home hbs should have a captivating and intriguing photos and information that draws the user into registering and signing in, create consistent and clean style in home/register #6 (Rogan)
+-Update Docker to Recognize our Containers (Kerem)
+-Update Docker to Add Hosting (Kerem)
+-Create Database (Kerem)
+-Add Fake Data to Database (Kerem)
+-Write the lab-9-kickstart.txt file (Manav)
+-Write the UAT-Plans.txt file (Manav)
+-Navigation Bar (Manav)
+-Driver page with ability to create new drive posting #4 (Manav)
+-Partial (Manav)
+-Make register and login completely functional (Colin)
+-Make profile functional with action calls and using actual database information #7 (Colin)
+-Add findARide filters so the user can search for different ski resorts, the user can filter by Ikon or Epic passes, etc., and additional filters, such as time, and add like 2-3 more. #15 (Jeremy)
+-Make findARide functional with action calls and actual database information #8 (Jeremy)
+
+
+In Progress for Next Week:
+
+-Profile Form(s) (Shane)
+-Add Messaging Page (Kerem)
+-Profile Information Post to Database (Shane)
+-"Complete" ride after date and time selected for drive passes, once that button is clicked pop up a rating for the driver on their passengers and a rating for passenger on their driver #18 (Colin)
+-Profile can be edited in real time on the page #44 (Colin)
+-Write a sign up/register for a ride page/modal, where on the find a ride page, the user can click into an open ride and fill out their information to send to the driver and signup for the ride #17 (Jeremy)
+-Make it so that when the user signs up, assign the rider to the trip and decrement the number of available seats accordingly. Prevent signups if no seats are left. #39 (Jeremy)
+-Implement Endpoints for Drive Page (Manav)
