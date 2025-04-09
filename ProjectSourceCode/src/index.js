@@ -132,6 +132,9 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+app.get('/register', (req, res) => {
+  res.render('pages/register');
+});
 app.get('/login', (req, res) => {
   res.render('pages/login');
 });
@@ -370,9 +373,7 @@ app.post('/driver', async (req, res) => {
   }
 });
 
-app.get('/register', (req, res) => {
-  res.render('pages/register');
-});
+
 app.post('/register', async (req, res) => {
   try {
     if (!req.body.username || !req.body.password) {
@@ -380,8 +381,13 @@ app.post('/register', async (req, res) => {
     }
     const hash = await bcrypt.hash(req.body.password, 10);
     const query =
-      'INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING *';
+      'INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING *;'
+    const query2 = 'INSERT INTO driverInfo (username) VALUES ($1) RETURNING *;'
+    const query3 = 'INSERT INTO riderInfo (username) VALUES ($1) RETURNING *;'
+
     const insertData = await db.one(query, [req.body.username, hash]);
+    const driverData = await db.one(query2, [req.body.username]);
+    const riderData = await db.one(query3, [req.body.username]);
     console.log('Inserted values:', insertData);
     res.redirect('/login');
   } catch (error) {
