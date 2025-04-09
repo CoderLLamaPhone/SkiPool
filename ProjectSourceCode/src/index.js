@@ -252,6 +252,59 @@ app.get('/driver', (req, res) => {
   res.render('pages/driverInfo');
 });
 
+app.post('/driver', async (req, res) => {
+  if(!req.session.user){
+    return res.redirect('/login');
+  }
+
+  const username = req.session.user.username;
+
+  try{
+    const driverQuery = 'SELECT driverID FROM driverInfo WHERE username = $1';
+    const driver = await db.oneOrNone(driverQuery, [username]);
+
+    if (!driver) {
+      return res.status(400).send('Driver info not found for this user.');
+    }
+
+    const driverID = driver.driverID;
+
+    const insertTripQuery = `
+    INSERT INTO trips (
+      driverID, capacity, resort, EST_outbound, EST_return, 
+      cost, pickupLocation, date, car
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    RETURNING *;
+  `;
+
+    // Execute the insert query
+    const tripData = [
+      driverID,
+      seats,
+      resort,
+      departureTime,
+      returnTime,
+      price,
+      pickupLocation,
+      departureDate,
+      car
+    ];
+    
+    const newTrip = await db.one(insertTripQuery, tripData);
+
+    console.log('New trip created:', newTrip);
+  }
+  catch(error){
+    console.error('Error inserting trip:', error);
+    res.status(500).send('Error creating trip');
+  }
+});
+
+app.get('/register', (req, res) => {
+  res.render('pages/register');
+});
+
 app.post('/register', async (req, res) => {
   try {
     const hash = await bcrypt.hash(req.body.password, 10);
