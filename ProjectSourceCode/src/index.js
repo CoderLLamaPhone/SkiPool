@@ -464,6 +464,50 @@ app.get('/chatroom/:id', async (req, res) => {
   }
 });
 
+app.post('/chatroom/:id/message', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const chatroomId = req.params.id;
+  const { message } = req.body;
+  const username = req.session.user.username;
+
+  try {
+    // Check if the chatroom exists in the database
+    const chatroom = await db.oneOrNone(
+      `SELECT c.chatroomid, d.username AS driver_username, r.username AS passenger_username
+       FROM chatroom c
+       JOIN driverInfo d ON c.driver = d.driverID
+       JOIN riderInfo r ON c.passenger = r.riderID
+       WHERE c.chatroomid = $1`,
+      [chatroomId]
+    );
+
+    if (!chatroom) {
+      return res.status(404).send('Chatroom not found or you do not have access to it.');
+    }
+
+    if (username !== chatroom.driver_username && username !== chatroom.passenger_username) {
+      return res.status(403).send('You do not have permission to send messages in this chatroom.');
+    }
+
+    // Insert the new message into the database
+    await db.none(
+      `INSERT INTO message (chatroomID, message, date, time, username)
+       VALUES ($1, $2, CURRENT_DATE, CURRENT_TIME, $3)`,
+      [chatroomId, message, username]
+    );
+    
+    console.log("Message sent:", message);
+
+    res.redirect(`/chatroom/${chatroomId}`);
+  } catch (error) {
+    console.error('Error adding message:', error);
+    res.status(500).send('An error occurred while adding the message.');
+  }
+});
+
 app.get('/profile', async (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login');
