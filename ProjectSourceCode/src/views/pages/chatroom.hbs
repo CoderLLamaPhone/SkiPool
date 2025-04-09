@@ -17,7 +17,7 @@
                 <div class="card-header bg-primary text-white">
                     <h5>Chatroom</h5>
                 </div>
-                <div class="card-body chat-box" id="chat-box">
+                <div class="card-body chat-box" style="height: 60vh; overflow-y: auto;" id="chat-box">
                     {{#if messages.length}}
                     {{#each messages}}
                     <div class="mb-2">
@@ -29,6 +29,12 @@
                     <p class="text-muted">No messages to display.</p>
                     {{/if}}
                 </div>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        var chatBox = document.getElementById("chat-box");
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    });
+                </script>
                 <div class="card-footer">
                     <form action="/chatroom/{{chatroomId}}/message" method="POST">
                         <div class="input-group">
