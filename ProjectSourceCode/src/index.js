@@ -372,7 +372,7 @@ app.post('/driver', async (req, res) => {
 
 app.get('/register', (req, res) => {
   res.render('pages/register');
-
+});
 app.post('/register', async (req, res) => {
   try {
     if (!req.body.username || !req.body.password) {
