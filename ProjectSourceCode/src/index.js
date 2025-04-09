@@ -398,11 +398,18 @@ app.get('/chats', async (req, res) => {
       JOIN riderInfo r ON c.passenger = r.riderID
       WHERE d.username = $1 OR r.username = $1;
       `, [username]);
+      chatrooms.forEach(chatroom => {
+        if (chatroom.driver_username !== username) {
+          chatroom.username = chatroom.driver_username;
+        } else if (chatroom.passenger_username !== username) {
+          chatroom.username = chatroom.passenger_username;
+        }
+      });
       console.log(chatrooms, username)
-    res.render('pages/chats', { user: username, chatrooms });
+      res.render('pages/chats', { chatrooms });
   } catch (error) {
     console.error('Error fetching chatrooms:', error);
-    res.render('pages/chats', { user: req.session.user.username, chatrooms: [] });
+    res.render('pages/home');
   }
 });
 
@@ -443,14 +450,6 @@ app.get('/chatroom/:id', async (req, res) => {
        ORDER BY m.date ASC, m.time ASC`,
       [chatroomId]
     );
-
-    console.log({
-      chatroomId: chatroom.chatroomid,
-      users: [chatroom.driver_username, chatroom.passenger_username],
-      messages: messages,
-      user: username
-    })
-    console.log(messages)
 
     res.render('pages/chatroom', {
       chatroomId: chatroom.chatroomid,
