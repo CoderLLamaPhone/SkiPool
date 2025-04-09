@@ -328,6 +328,53 @@ app.get('/rate/:tripID', async (req, res) => {
 
 //Ride Page(s)
 
+
+app.post('/signup', async (req, res) => {
+  // Ensure the user is logged in.
+  if (!req.session.user) {
+    return res.status(401).send("Please log in to sign up for a ride.");
+  }
+  // Get the currently logged in user's username.
+  const loggedInUsername = req.session.user.username;
+
+  // Extract form data from the request body.
+  const {
+    tripId,
+    fullName,
+    emailAddress,
+    phoneNumber,
+    paymentOption,
+    pickupLocation,
+    partySize,
+    specialRequirements
+  } = req.body;
+
+  try {
+    await db.none(
+      `INSERT INTO rideSignups (
+         tripID, username, fullName, emailAddress, phoneNumber, paymentOption,
+         pickupLocation, partySize, specialRequirements
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        tripId,
+        loggedInUsername,
+        fullName,
+        emailAddress,
+        phoneNumber,
+        paymentOption,
+        pickupLocation,
+        partySize,
+        specialRequirements
+      ]
+    );
+    // Redirect to a thank-you page (create this view as needed)
+    res.redirect('/thank-you');
+  } catch (error) {
+    console.error("Error saving sign-up data:", error);
+    res.status(500).send("An error occurred while saving your sign-up information.");
+  }
+});
+
 // Logout
 app.get('/logout', (req, res) => {
   console.log('Logout');

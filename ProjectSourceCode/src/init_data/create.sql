@@ -95,3 +95,18 @@ CREATE TABLE message(
     username VARCHAR(50) NOT NULL,
     message VARCHAR(500) NOT NULL
 );
+
+DROP TABLE IF EXISTS rideSignups;
+CREATE TABLE rideSignups (
+    signupID SERIAL PRIMARY KEY,
+    tripID INTEGER NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    fullName VARCHAR(100) NOT NULL,
+    emailAddress VARCHAR(100) NOT NULL,
+    phoneNumber VARCHAR(20) NOT NULL,
+    paymentOption VARCHAR(20) NOT NULL,
+    pickupLocation VARCHAR(100) NOT NULL,
+    partySize INTEGER NOT NULL,
+    specialRequirements TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
