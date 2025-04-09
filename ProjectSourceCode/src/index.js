@@ -118,6 +118,8 @@ app.use(
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(express.static(__dirname + '/'));
+
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
@@ -259,10 +261,117 @@ app.get('/rider', async (req, res) => {
   }
 });
 
+app.get('/driver', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
 
-app.get('/driver', (req, res) => {
-  res.render('pages/driverInfo');
+  const username = req.session.user.username;
+
+  try {
+    const driver = await db.oneOrNone(
+      'SELECT driverID FROM driverInfo WHERE username = $1',
+      [username]
+    );
+
+    if (!driver) {
+      return res.status(400).send('Driver info not found');
+    }
+
+    const trips = await db.any(
+      `SELECT 
+        pickupLocation, 
+        resort, 
+        date AS departureDate,
+        EST_outbound AS departureTime,
+        EST_return AS returnTime,
+        cost AS price, 
+        capacity AS seats,
+        car
+      FROM trips 
+      WHERE driverID = $1
+      ORDER BY date DESC`,
+      [driver.driverid]
+    );
+
+    console.log('Trips for user:', trips);
+
+    res.render('pages/driverInfo', { trips: trips || [] });
+  } 
+  catch(err){
+    console.error('Error loading driver info page:', err);
+    res.status(500).send('Something went wrong loading your trips.');
+  }
 });
+
+
+app.post('/driver', async (req, res) => {
+  if(!req.session.user){
+    return res.redirect('/login');
+  }
+
+  const username = req.session.user.username;
+
+  const {
+    seats,
+    resort,
+    departureTime,
+    returnTime,
+    price,
+    pickupLocation,
+    departureDate,
+    car
+  } = req.body;
+
+  console.log("BODY:", req.body);
+
+  try{
+    const driverQuery = 'SELECT driverID FROM driverInfo WHERE username = $1';
+    const driver = await db.oneOrNone(driverQuery, [username]);
+    console.log("Driver", driver);
+
+    if (!driver) {
+      return res.status(400).send('Driver info not found for this user.');
+    }
+
+    const driverID = driver.driverid;
+    console.log("DriverID from session:", driverID);
+
+    const insertTripQuery = `
+    INSERT INTO trips (
+      driverID, capacity, resort, EST_outbound, EST_return, 
+      cost, pickupLocation, date, car
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    RETURNING *;
+  `;
+
+    // Execute the insert query
+    const tripData = [
+      driverID,
+      seats,
+      resort,
+      departureTime,
+      returnTime,
+      price,
+      pickupLocation,
+      departureDate,
+      car
+    ];
+    
+    const newTrip = await db.one(insertTripQuery, tripData);
+
+    console.log('New trip created:', newTrip);
+    res.redirect('/driver');
+  }
+  catch(error){
+    console.error('Error inserting trip:', error);
+    res.status(500).send('Error creating trip');
+  }
+});
+
+app.get('/register', (req, res) => {
+  res.render('pages/register');
 
 app.post('/register', async (req, res) => {
   try {
