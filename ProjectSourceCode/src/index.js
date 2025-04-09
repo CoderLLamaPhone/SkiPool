@@ -38,8 +38,8 @@ const hbs = handlebars.create({
   helpers: {
     formatDate: function(date) {
       if (!date) return '';
-      // Assuming date is in ISO format, split at 'T' to remove the time portion
-      return date.split('T')[0];
+      const dateStr = typeof date === 'string' ? date : new Date(date).toISOString();
+      return dateStr.split('T')[0];
     }
   }
 });
@@ -52,14 +52,6 @@ const dbConfig = {
   user: process.env.POSTGRES_USER, // the user account to connect with
   password: process.env.POSTGRES_PASSWORD, // the password of the user account
 };
-
-(async () => {
-  const pw1 = await bcrypt.hash('password123', 10);
-  const pw2 = await bcrypt.hash('securepass456', 10);
-  const pw3 = await bcrypt.hash('mikepass789', 10);
-
-  console.log({ pw1, pw2, pw3 });
-})();
 
 
 const db = pgp(dbConfig);
@@ -74,15 +66,38 @@ db.connect()
     console.log('ERROR:', error.message || error);
   });
 
+  (async () => {
+    const userCount = await db.one('SELECT COUNT(*) FROM "user"', [], a => +a.count);
+    if (userCount === 0) {
+      const pw1 = await bcrypt.hash('password123', 10);
+      const pw2 = await bcrypt.hash('securepass456', 10);
+      const pw3 = await bcrypt.hash('mikepass789', 10);
+  
+      try {
+        await db.none(`
+          INSERT INTO "user" (username, password, email, about_me, epic_pass, ikon_pass, fav_mountains)
+          VALUES 
+          ('john_doe', $1, 'john.doe@fake.com', 'I just love snowboarding so much, and I am incredibly grateful this app is allowing me to make friends in the process. Yew!!', true, true, 'Aspen, Breckenridge'),
+          ('jane_smith', $2, 'jane.smith@fake.com', 'Skiing is my passion. Vail is home.', true, false, 'Vail'),
+          ('mike_brown', $3, 'mike.brown@fake.com', 'Looking to make new friends through weekend trips.', false, true, 'Copper Mountain');
+        `, [pw1, pw2, pw3]);
+      } catch (err) {
+        console.error('Error inserting fake users:', err.message);
+      }
+    } else {
+      console.log('Users already exist, skipping seeding');
+    }
+  })();
+
 // *****************************************************
 // <!-- Section 3 : App Settings -->
 // *****************************************************
 
-//const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 3000;
+const server = app.listen(PORT, () => {
   console.log(`Website is running on http://localhost:${PORT}`);
 });
-module.exports = app.listen(PORT);
+module.exports = server;
 
 // Register `hbs` as our view engine using its bound `engine()` function.
 app.engine('hbs', hbs.engine);
@@ -241,7 +256,7 @@ app.post('/register', async (req, res) => {
   try {
     const hash = await bcrypt.hash(req.body.password, 10);
     const query =
-      'INSERT INTO users_db (username, password) VALUES ($1, $2) RETURNING *';
+      'INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING *';
     const insertData = await db.one(query, [req.body.username, hash]);
     console.log('Inserted values:', insertData);
     res.redirect('/login');
@@ -254,7 +269,7 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    const query = 'SELECT * FROM users_db WHERE username = $1';
+    const query = 'SELECT * FROM "user" WHERE username = $1';
     const user = await db.oneOrNone(query, [username]);
 
     if (!user) {

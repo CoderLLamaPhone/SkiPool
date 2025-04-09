@@ -1,8 +1,4 @@
--- Insert fake entries into the "user" table
-INSERT INTO "user" (username, password, email, about_me, epic_pass, ikon_pass, fav_mountains) VALUES
-('john_doe', '$2a$10$XPktaBSFAOis4TbohF1F1e9avYUKNqXZ3VujnFjSrK1tDtHRL8oDy', 'john.doe@fake.com', 'I just love snowboarding so much, and I am incredibly grateful this app is allowing me to make friends in the process. Yew!!', true, true, 'Aspen, Breckenridge'),
-('jane_smith', '$2a$10$1ft5g8Bp0D5YMufp.xg11.W.fukeiwCvEL7fuP6qij8.ODsgG13O.', 'jane.smith@fake.com', 'Skiing is my passion. Vail is home.', true, false, 'Vail'),
-('mike_brown', '$2a$10$aWR8.I8JXfHkhgCCUEMk0O3BQH34YYZKJ5i1P.hBIj3Fc6835Q8oO', 'mike.brown@fake.com', 'Looking to make new friends through weekend trips.', false, true, 'Copper Mountain');
+
 
 -- Insert fake entries into the driverInfo table
 INSERT INTO driverInfo (username, AVG_Rating) VALUES
@@ -25,10 +21,6 @@ INSERT INTO riderInfo (username, AVG_Rating) VALUES
 ('john_doe', 4),
 ('mike_brown', 5),
 ('jane_smith', 4);
-=======
-INSERT INTO riderInfo (riderID, username, AVG_Rating) VALUES
-(1, 'mike_brown', 5),
-(2, 'jane_smith', 4);
 
 
 -- Insert fake entries into the riderRatings table
