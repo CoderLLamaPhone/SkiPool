@@ -254,6 +254,9 @@ app.get('/driver', (req, res) => {
 
 app.post('/register', async (req, res) => {
   try {
+    if (!req.body.username || !req.body.password) {
+      return res.status(400).render('pages/register', { error: 'Username and password are required.' });
+    }
     const hash = await bcrypt.hash(req.body.password, 10);
     const query =
       'INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING *';
@@ -262,7 +265,7 @@ app.post('/register', async (req, res) => {
     res.redirect('/login');
   } catch (error) {
     console.error('Error during registration:', error);
-    res.redirect('/register');
+    res.status(400).render('pages/register', { error: 'Registration failed. Please try again.' });
   }
 });
 
@@ -406,15 +409,13 @@ app.get('/logout', (req, res) => {
 
 app.get('/profile', async (req, res) => {
   if (!req.session.user) {
-    return res.redirect('/login');
+    return res.status(401).redirect('/login');
   }
 
-  const username = req.session.user.username;
-
   try {
-    const user = await db.one('SELECT * FROM "user" WHERE username = $1', [username]);
+    const user = await db.one('SELECT * FROM "user" WHERE username = $1', [req.session.user.username]);
 
-    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [req.session.user.username]);
 
     const driverID = driver.driverid;
     const reviews = await db.any(`
