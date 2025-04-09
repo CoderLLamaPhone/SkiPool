@@ -1,5 +1,5 @@
 <header>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav class="navbar navbar-expand-sm navbar-light bg-light">
     <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
       <a class="navbar-brand" href="/"></a>
       <ul class="navbar-nav mr-auto">
@@ -14,6 +14,11 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{#if email}}/logout{{else}}/login{{/if}}">{{#if email}}Log out{{else}}Log in{{/if}}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/chats">
+            Message Hub
+          </a>
         </li>
       </ul>
     </div>

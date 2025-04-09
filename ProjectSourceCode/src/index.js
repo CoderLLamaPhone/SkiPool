@@ -53,7 +53,6 @@ const dbConfig = {
   password: process.env.POSTGRES_PASSWORD, // the password of the user account
 };
 
-
 const db = pgp(dbConfig);
 
 // test your database
@@ -418,6 +417,130 @@ app.get('/logout', (req, res) => {
   // send message to the client
     res.render('pages/logout', {message: 'You have been logged out successfully'});
   });
+});
+
+app.get('/chats', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  try {
+    const username = req.session.user.username;
+
+    // Check if the user is a driver or a passenger in any chatroom
+    const chatrooms = await db.any(`
+      SELECT c.chatroomid AS chatroom, d.username AS driver_username, r.username AS passenger_username
+      FROM chatroom c
+      JOIN driverInfo d ON c.driver = d.driverID
+      JOIN riderInfo r ON c.passenger = r.riderID
+      WHERE d.username = $1 OR r.username = $1;
+      `, [username]);
+      chatrooms.forEach(chatroom => {
+        if (chatroom.driver_username !== username) {
+          chatroom.username = chatroom.driver_username;
+        } else if (chatroom.passenger_username !== username) {
+          chatroom.username = chatroom.passenger_username;
+        }
+      });
+      console.log(chatrooms, username)
+      res.render('pages/chats', { chatrooms });
+  } catch (error) {
+    console.error('Error fetching chatrooms:', error);
+    res.render('pages/home');
+  }
+});
+
+app.get('/chatroom/:id', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const chatroomId = req.params.id;
+
+  try {
+    // Check if the chatroom exists in the database
+    const chatroom = await db.oneOrNone(
+      `SELECT c.chatroomid, d.username AS driver_username, r.username AS passenger_username
+       FROM chatroom c
+       JOIN driverInfo d ON c.driver = d.driverID
+       JOIN riderInfo r ON c.passenger = r.riderID
+       WHERE c.chatroomid = $1`,
+      [chatroomId]
+    );
+
+    if (!chatroom) {
+      return res.status(404).send('Chatroom not found or you do not have access to it.');
+    }
+
+    // Render the chatroom page with chatroom details
+    const username = req.session.user.username;
+
+    if (username != chatroom.driver_username && username != chatroom.passenger_username) {
+      return res.status(404).send('Chatroom not found or you do not have access to it.');
+    }
+
+    // Fetch messages for the chatroom from the database
+    const messages = await db.any(
+      `SELECT m.messageID, m.message, m.date, m.time, m.username
+       FROM message m
+       WHERE m.chatroomID = $1
+       ORDER BY m.date ASC, m.time ASC`,
+      [chatroomId]
+    );
+
+    res.render('pages/chatroom', {
+      chatroomId: chatroom.chatroomid,
+      users: [chatroom.driver_username, chatroom.passenger_username],
+      messages: messages,
+      user: username
+    });
+  } catch (error) {
+    console.error('Error fetching chatroom:', error);
+    res.status(500).send('An error occurred while fetching the chatroom');
+  }
+});
+
+app.post('/chatroom/:id/message', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const chatroomId = req.params.id;
+  const { message } = req.body;
+  const username = req.session.user.username;
+
+  try {
+    // Check if the chatroom exists in the database
+    const chatroom = await db.oneOrNone(
+      `SELECT c.chatroomid, d.username AS driver_username, r.username AS passenger_username
+       FROM chatroom c
+       JOIN driverInfo d ON c.driver = d.driverID
+       JOIN riderInfo r ON c.passenger = r.riderID
+       WHERE c.chatroomid = $1`,
+      [chatroomId]
+    );
+
+    if (!chatroom) {
+      return res.status(404).send('Chatroom not found or you do not have access to it.');
+    }
+
+    if (username !== chatroom.driver_username && username !== chatroom.passenger_username) {
+      return res.status(403).send('You do not have permission to send messages in this chatroom.');
+    }
+
+    // Insert the new message into the database
+    await db.none(
+      `INSERT INTO message (chatroomID, message, date, time, username)
+       VALUES ($1, $2, CURRENT_DATE, CURRENT_TIME, $3)`,
+      [chatroomId, message, username]
+    );
+    
+    console.log("Message sent:", message);
+
+    res.redirect(`/chatroom/${chatroomId}`);
+  } catch (error) {
+    console.error('Error adding message:', error);
+    res.status(500).send('An error occurred while adding the message.');
+  }
 });
 
 app.get('/profile', async (req, res) => {
