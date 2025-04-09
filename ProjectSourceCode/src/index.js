@@ -49,11 +49,10 @@ const dbConfig = {
 };
 
 (async () => {
+  //Testing account passwords
   const pw1 = await bcrypt.hash('password123', 10);
   const pw2 = await bcrypt.hash('securepass456', 10);
   const pw3 = await bcrypt.hash('mikepass789', 10);
-
-  console.log({ pw1, pw2, pw3 });
 })();
 
 
@@ -404,6 +403,64 @@ app.get('/chats', async (req, res) => {
   } catch (error) {
     console.error('Error fetching chatrooms:', error);
     res.render('pages/chats', { user: req.session.user.username, chatrooms: [] });
+  }
+});
+
+app.get('/chatroom/:id', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const chatroomId = req.params.id;
+
+  try {
+    // Check if the chatroom exists in the database
+    const chatroom = await db.oneOrNone(
+      `SELECT c.chatroomid, d.username AS driver_username, r.username AS passenger_username
+       FROM chatroom c
+       JOIN driverInfo d ON c.driver = d.driverID
+       JOIN riderInfo r ON c.passenger = r.riderID
+       WHERE c.chatroomid = $1`,
+      [chatroomId]
+    );
+
+    if (!chatroom) {
+      return res.status(404).send('Chatroom not found or you do not have access to it.');
+    }
+
+    // Render the chatroom page with chatroom details
+    const username = req.session.user.username;
+
+    if (username != chatroom.driver_username && username != chatroom.passenger_username) {
+      return res.status(404).send('Chatroom not found or you do not have access to it.');
+    }
+
+    // Fetch messages for the chatroom from the database
+    const messages = await db.any(
+      `SELECT m.messageID, m.message, m.date, m.time, m.username
+       FROM message m
+       WHERE m.chatroomID = $1
+       ORDER BY m.date ASC, m.time ASC`,
+      [chatroomId]
+    );
+
+    console.log({
+      chatroomId: chatroom.chatroomid,
+      users: [chatroom.driver_username, chatroom.passenger_username],
+      messages: messages,
+      user: username
+    })
+    console.log(messages)
+
+    res.render('pages/chatroom', {
+      chatroomId: chatroom.chatroomid,
+      users: [chatroom.driver_username, chatroom.passenger_username],
+      messages: messages,
+      user: username
+    });
+  } catch (error) {
+    console.error('Error fetching chatroom:', error);
+    res.status(500).send('An error occurred while fetching the chatroom');
   }
 });
 

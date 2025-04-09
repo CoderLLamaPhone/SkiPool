@@ -2,7 +2,7 @@
     <h1 class="text-center mb-4">Chatrooms</h1>
     <div class="list-group">
         {{#each chatrooms}}
-            <a href="/chatrooms/{{this.chatroom}}" class="list-group-item list-group-item-action">
+            <a href="/chatroom/{{this.chatroom}}" class="list-group-item list-group-item-action">
                 <h5 class="mb-1">Open chat with {{this.passenger_username}}</h5>
             </a>
         {{/each}}
