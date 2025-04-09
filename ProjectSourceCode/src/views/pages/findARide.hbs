@@ -100,7 +100,8 @@
                           <p><strong>Return Time:</strong> {{est_return}}</p>
                         </div>
                         <div class="col-md-6">
-                          <p><strong>Min. Available Seats:</strong> {{availableSeats}}</p>
+                          <!-- Updated to display Remaining Seats as X/Y -->
+                          <p><strong>Remaining Seats:</strong> {{remainingSeats}}/{{capacity}}</p>
                           <p><strong>Resort:</strong> {{resort}}</p>
                           <p><strong>Pass:</strong> {{pass}}</p>
                           <p><strong>Price ($):</strong> {{cost}}</p>
@@ -132,20 +133,15 @@
 
   <!-- Sign Up Modal -->
   <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
-    <!-- modal-lg makes the modal wider -->
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <!-- Modal title will be updated dynamically based on button data -->
           <h5 class="modal-title" id="signupModalLabel">Sign Up for Ride</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <!-- The form now submits to /signup using POST -->
           <form id="signup-form" action="/signup" method="POST">
-            <!-- Hidden field to store the trip ID -->
             <input type="hidden" name="tripId" id="tripId">
-            <!-- Two-column layout for main fields -->
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
@@ -156,7 +152,6 @@
                   <label for="emailAddress" class="form-label">Email Address</label>
                   <input type="email" name="emailAddress" class="form-control" id="emailAddress" placeholder="name@example.com" required>
                 </div>
-                <!-- Payment Option in the left column -->
                 <div class="mb-3">
                   <label class="form-label">Payment Option</label>
                   <div class="form-check">
@@ -206,7 +201,6 @@
     </div>
   </div>
   
-  
   <!-- Bootstrap JS Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Custom script to update modal header and set hidden tripId dynamically -->
@@ -214,14 +208,11 @@
     var signupModal = document.getElementById('signupModal');
     signupModal.addEventListener('show.bs.modal', function (event) {
       var button = event.relatedTarget;
-      // Retrieve dynamic data from the button that triggered the modal.
       var driver = button.getAttribute('data-driver');
       var destination = button.getAttribute('data-destination');
       var tripId = button.getAttribute('data-tripid');
-      // Update the modal title.
       var modalTitle = signupModal.querySelector('.modal-title');
       modalTitle.textContent = "Sign up for " + driver + "'s ride to " + destination;
-      // Set the hidden tripId field.
       document.getElementById('tripId').value = tripId;
     });
   </script>

@@ -1,0 +1,96 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Users</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {{#each users}}
+                    <li class="list-group-item">{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card" id="chatroom-card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Chatroom</h5>
+                </div>
+                <div class="card-body chat-box" style="height: 60vh; overflow-y: auto;" id="chat-box">
+                    {{#if messages.length}}
+                    {{#each messages}}
+                    <div class="mb-2">
+                        <strong>{{this.username}}:</strong> {{this.message}} <br>
+                        <small class="text-muted">{{this.date}} {{this.time}}</small>
+                    </div>
+                    {{/each}}
+                    {{else}}
+                    <p class="text-muted">No messages to display.</p>
+                    {{/if}}
+                </div>
+                <script>
+                    
+                </script>
+                <div class="card-footer">
+                    <form action="/chatroom/{{chatroomId}}/message" method="POST">
+                        <div class="input-group">
+                            <input type="text" id="message" name="message" class="form-control" placeholder="Type your message..." required>
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </div>
+                    </form>
+                    <script>
+                        var messageInput = document.getElementById("message");
+                        var card = document.getElementById("chatroom-card");
+                        var reloadInterval;
+
+                        function startReloadInterval() {
+                            reloadInterval = setInterval(function() {
+                                location.reload();
+                            }, 1000);
+                        }
+
+                        function stopReloadInterval() {
+                            clearInterval(reloadInterval);
+                        }
+
+                        var isHovering = false;
+                        var isTyping = false;
+                        var hoveringOverCard = false;
+
+                        messageInput.addEventListener("input", function() {
+                            isTyping = true;
+                            stopReloadInterval();
+                        });
+
+                        messageInput.addEventListener("blur", function() {
+                            isTyping = false;
+                            if (!isHovering) {
+                                startReloadInterval();
+                            }
+                        });
+
+                        card.addEventListener("mouseover", function() {
+                            isHovering = true;
+                            stopReloadInterval();
+                        });
+
+                        card.addEventListener("mouseout", function() {
+                            isHovering = false;
+                            if (!isTyping) {
+                                startReloadInterval();
+                            }
+                        });
+
+                        document.addEventListener("DOMContentLoaded", function() {
+                            var chatBox = document.getElementById("chat-box");
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        });
+
+                        startReloadInterval();
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

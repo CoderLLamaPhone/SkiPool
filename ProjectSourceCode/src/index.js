@@ -53,7 +53,6 @@ const dbConfig = {
   password: process.env.POSTGRES_PASSWORD, // the password of the user account
 };
 
-
 const db = pgp(dbConfig);
 
 // test your database
@@ -160,23 +159,31 @@ app.get('/rider', async (req, res) => {
         t.pickupLocation, t.date, t.car, r.pass, d.username
     `);
 
+    let signUpTrips = await db.any(`SELECT * FROM rideSignups`);
+
     trips = trips.map(trip => {
       // Compute initials from the username (e.g., "John Doe" -> "JD")
       const initials = trip.username 
         ? trip.username.split(' ').map(name => name[0]).join('').toUpperCase()
         : 'N/A';
 
+      // Calculate the total seats taken for this trip from rideSignups.
+      const totalSeatsTaken = signUpTrips
+        .filter(signup => signup.tripid === trip.tripid)
+        .reduce((sum, signup) => sum + Number(signup.partysize), 0);
+
+      // Compute remaining seats by subtracting the sum of partysize from the trip's capacity.
+      const remainingSeats = trip.capacity - totalSeatsTaken;
+
       return {
         ...trip,
         date: trip.date ? new Date(trip.date).toISOString().split('T')[0] : '',
-        initials
+        initials,
+        remainingSeats
       };
     });
-    
 
-    console.log(trips)
-
-
+    // If no trips are found, set default trips.
     if (trips.length === 0) {
       trips = [
         {
@@ -187,6 +194,7 @@ app.get('/rider', async (req, res) => {
           cost: 35,
           gearSpace: 'Limited gear space',
           availableSeats: 2,
+          remainingSeats: 2, // Default remaining seats
           additionalInfo: 'Non-smoking vehicle, friendly driver.',
           resort: 'breckenridge',
           pass: 'ikon'
@@ -199,6 +207,7 @@ app.get('/rider', async (req, res) => {
           cost: 25,
           gearSpace: 'Plenty of room for skis and snowboards',
           availableSeats: 1,
+          remainingSeats: 1, // Default remaining seats
           additionalInfo: 'Please bring your own masks.',
           resort: 'vail',
           pass: 'epic'
@@ -211,6 +220,7 @@ app.get('/rider', async (req, res) => {
           cost: 40,
           gearSpace: 'Ample space, can carry extra gear',
           availableSeats: 3,
+          remainingSeats: 3, // Default remaining seats
           additionalInfo: 'Music allowed. Temperature controlled car.',
           resort: 'aspensnowmass',
           pass: 'ikon'
@@ -218,6 +228,7 @@ app.get('/rider', async (req, res) => {
       ];
     }
     
+    // Apply filtering based on query parameters
     const { resort, pass, time, priceRange, availableSeats } = req.query;
     if (resort) {
       trips = trips.filter(trip => trip.resort === resort);
@@ -361,10 +372,12 @@ app.post('/driver', async (req, res) => {
 
 app.get('/register', (req, res) => {
   res.render('pages/register');
-});
 
 app.post('/register', async (req, res) => {
   try {
+    if (!req.body.username || !req.body.password) {
+      return res.status(400).render('pages/register', { error: 'Username and password are required.' });
+    }
     const hash = await bcrypt.hash(req.body.password, 10);
     const query =
       'INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING *';
@@ -373,7 +386,7 @@ app.post('/register', async (req, res) => {
     res.redirect('/login');
   } catch (error) {
     console.error('Error during registration:', error);
-    res.redirect('/register');
+    res.status(400).render('pages/register', { error: 'Registration failed. Please try again.' });
   }
 });
 
@@ -499,7 +512,7 @@ app.post('/signup', async (req, res) => {
       ]
     );
     // Redirect to a thank-you page (create this view as needed)
-    res.redirect('/thank-you');
+    res.redirect('/rider');
   } catch (error) {
     console.error("Error saving sign-up data:", error);
     res.status(500).send("An error occurred while saving your sign-up information.");
@@ -515,17 +528,139 @@ app.get('/logout', (req, res) => {
   });
 });
 
-app.get('/profile', async (req, res) => {
+app.get('/chats', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  try {
+    const username = req.session.user.username;
+
+    // Check if the user is a driver or a passenger in any chatroom
+    const chatrooms = await db.any(`
+      SELECT c.chatroomid AS chatroom, d.username AS driver_username, r.username AS passenger_username
+      FROM chatroom c
+      JOIN driverInfo d ON c.driver = d.driverID
+      JOIN riderInfo r ON c.passenger = r.riderID
+      WHERE d.username = $1 OR r.username = $1;
+      `, [username]);
+      chatrooms.forEach(chatroom => {
+        if (chatroom.driver_username !== username) {
+          chatroom.username = chatroom.driver_username;
+        } else if (chatroom.passenger_username !== username) {
+          chatroom.username = chatroom.passenger_username;
+        }
+      });
+      console.log(chatrooms, username)
+      res.render('pages/chats', { chatrooms });
+  } catch (error) {
+    console.error('Error fetching chatrooms:', error);
+    res.render('pages/home');
+  }
+});
+
+app.get('/chatroom/:id', async (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login');
   }
 
+  const chatroomId = req.params.id;
+
+  try {
+    // Check if the chatroom exists in the database
+    const chatroom = await db.oneOrNone(
+      `SELECT c.chatroomid, d.username AS driver_username, r.username AS passenger_username
+       FROM chatroom c
+       JOIN driverInfo d ON c.driver = d.driverID
+       JOIN riderInfo r ON c.passenger = r.riderID
+       WHERE c.chatroomid = $1`,
+      [chatroomId]
+    );
+
+    if (!chatroom) {
+      return res.status(404).send('Chatroom not found or you do not have access to it.');
+    }
+
+    // Render the chatroom page with chatroom details
+    const username = req.session.user.username;
+
+    if (username != chatroom.driver_username && username != chatroom.passenger_username) {
+      return res.status(404).send('Chatroom not found or you do not have access to it.');
+    }
+
+    // Fetch messages for the chatroom from the database
+    const messages = await db.any(
+      `SELECT m.messageID, m.message, m.date, m.time, m.username
+       FROM message m
+       WHERE m.chatroomID = $1
+       ORDER BY m.date ASC, m.time ASC`,
+      [chatroomId]
+    );
+
+    res.render('pages/chatroom', {
+      chatroomId: chatroom.chatroomid,
+      users: [chatroom.driver_username, chatroom.passenger_username],
+      messages: messages,
+      user: username
+    });
+  } catch (error) {
+    console.error('Error fetching chatroom:', error);
+    res.status(500).send('An error occurred while fetching the chatroom');
+  }
+});
+
+app.post('/chatroom/:id/message', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const chatroomId = req.params.id;
+  const { message } = req.body;
   const username = req.session.user.username;
 
   try {
-    const user = await db.one('SELECT * FROM "user" WHERE username = $1', [username]);
+    // Check if the chatroom exists in the database
+    const chatroom = await db.oneOrNone(
+      `SELECT c.chatroomid, d.username AS driver_username, r.username AS passenger_username
+       FROM chatroom c
+       JOIN driverInfo d ON c.driver = d.driverID
+       JOIN riderInfo r ON c.passenger = r.riderID
+       WHERE c.chatroomid = $1`,
+      [chatroomId]
+    );
 
-    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+    if (!chatroom) {
+      return res.status(404).send('Chatroom not found or you do not have access to it.');
+    }
+
+    if (username !== chatroom.driver_username && username !== chatroom.passenger_username) {
+      return res.status(403).send('You do not have permission to send messages in this chatroom.');
+    }
+
+    // Insert the new message into the database
+    await db.none(
+      `INSERT INTO message (chatroomID, message, date, time, username)
+       VALUES ($1, $2, CURRENT_DATE, CURRENT_TIME, $3)`,
+      [chatroomId, message, username]
+    );
+    
+    console.log("Message sent:", message);
+
+    res.redirect(`/chatroom/${chatroomId}`);
+  } catch (error) {
+    console.error('Error adding message:', error);
+    res.status(500).send('An error occurred while adding the message.');
+  }
+});
+
+app.get('/profile', async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).redirect('/login');
+  }
+
+  try {
+    const user = await db.one('SELECT * FROM "user" WHERE username = $1', [req.session.user.username]);
+
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [req.session.user.username]);
 
     const driverID = driver.driverid;
     const reviews = await db.any(`
