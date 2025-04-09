@@ -2,7 +2,11 @@ DROP TABLE IF EXISTS "user";
 CREATE TABLE "user"(
     username VARCHAR(50) PRIMARY KEY,
     password VARCHAR(60) NOT NULL,
-    email VARCHAR(200)
+    email VARCHAR(200),
+    about_me VARCHAR(2000),
+    epic_pass BOOLEAN,
+    ikon_pass BOOLEAN,
+    fav_mountains VARCHAR(500)
 );
 
 DROP TABLE IF EXISTS driverInfo;
