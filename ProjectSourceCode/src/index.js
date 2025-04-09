@@ -158,23 +158,31 @@ app.get('/rider', async (req, res) => {
         t.pickupLocation, t.date, t.car, r.pass, d.username
     `);
 
+    let signUpTrips = await db.any(`SELECT * FROM rideSignups`);
+
     trips = trips.map(trip => {
       // Compute initials from the username (e.g., "John Doe" -> "JD")
       const initials = trip.username 
         ? trip.username.split(' ').map(name => name[0]).join('').toUpperCase()
         : 'N/A';
 
+      // Calculate the total seats taken for this trip from rideSignups.
+      const totalSeatsTaken = signUpTrips
+        .filter(signup => signup.tripid === trip.tripid)
+        .reduce((sum, signup) => sum + Number(signup.partysize), 0);
+
+      // Compute remaining seats by subtracting the sum of partysize from the trip's capacity.
+      const remainingSeats = trip.capacity - totalSeatsTaken;
+
       return {
         ...trip,
         date: trip.date ? new Date(trip.date).toISOString().split('T')[0] : '',
-        initials
+        initials,
+        remainingSeats
       };
     });
-    
 
-    console.log(trips)
-
-
+    // If no trips are found, set default trips.
     if (trips.length === 0) {
       trips = [
         {
@@ -185,6 +193,7 @@ app.get('/rider', async (req, res) => {
           cost: 35,
           gearSpace: 'Limited gear space',
           availableSeats: 2,
+          remainingSeats: 2, // Default remaining seats
           additionalInfo: 'Non-smoking vehicle, friendly driver.',
           resort: 'breckenridge',
           pass: 'ikon'
@@ -197,6 +206,7 @@ app.get('/rider', async (req, res) => {
           cost: 25,
           gearSpace: 'Plenty of room for skis and snowboards',
           availableSeats: 1,
+          remainingSeats: 1, // Default remaining seats
           additionalInfo: 'Please bring your own masks.',
           resort: 'vail',
           pass: 'epic'
@@ -209,6 +219,7 @@ app.get('/rider', async (req, res) => {
           cost: 40,
           gearSpace: 'Ample space, can carry extra gear',
           availableSeats: 3,
+          remainingSeats: 3, // Default remaining seats
           additionalInfo: 'Music allowed. Temperature controlled car.',
           resort: 'aspensnowmass',
           pass: 'ikon'
@@ -216,6 +227,7 @@ app.get('/rider', async (req, res) => {
       ];
     }
     
+    // Apply filtering based on query parameters
     const { resort, pass, time, priceRange, availableSeats } = req.query;
     if (resort) {
       trips = trips.filter(trip => trip.resort === resort);
@@ -247,6 +259,7 @@ app.get('/rider', async (req, res) => {
     res.render('pages/findARide', { trips: [] });
   }
 });
+
 
 app.get('/driver', (req, res) => {
   res.render('pages/driverInfo');
@@ -391,7 +404,7 @@ app.post('/signup', async (req, res) => {
       ]
     );
     // Redirect to a thank-you page (create this view as needed)
-    res.redirect('/thank-you');
+    res.redirect('/rider');
   } catch (error) {
     console.error("Error saving sign-up data:", error);
     res.status(500).send("An error occurred while saving your sign-up information.");
