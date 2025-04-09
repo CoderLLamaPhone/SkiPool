@@ -2,7 +2,11 @@ DROP TABLE IF EXISTS "user";
 CREATE TABLE "user"(
     username VARCHAR(50) PRIMARY KEY,
     password VARCHAR(60) NOT NULL,
-    email VARCHAR(200)
+    email VARCHAR(200),
+    about_me VARCHAR(2000),
+    epic_pass BOOLEAN,
+    ikon_pass BOOLEAN,
+    fav_mountains VARCHAR(500)
 );
 
 DROP TABLE IF EXISTS driverInfo;
@@ -94,4 +98,19 @@ CREATE TABLE message(
     time TIME NOT NULL,
     username VARCHAR(50) NOT NULL,
     message VARCHAR(500) NOT NULL
+);
+
+DROP TABLE IF EXISTS rideSignups;
+CREATE TABLE rideSignups (
+    signupID SERIAL PRIMARY KEY,
+    tripID INTEGER NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    fullName VARCHAR(100) NOT NULL,
+    emailAddress VARCHAR(100) NOT NULL,
+    phoneNumber VARCHAR(20) NOT NULL,
+    paymentOption VARCHAR(20) NOT NULL,
+    pickupLocation VARCHAR(100) NOT NULL,
+    partySize INTEGER NOT NULL,
+    specialRequirements TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

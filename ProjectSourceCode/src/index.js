@@ -13,6 +13,19 @@ const session = require('express-session'); // To set the session object.
 const bcrypt = require('bcryptjs'); // To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server
 
+Handlebars.registerHelper('stars', function(rating) {
+  const stars = [];
+  for (let i = 0; i < 5; i++) {
+    stars.push(i < Math.round(rating));
+  }
+  return stars;
+});
+
+Handlebars.registerHelper('formatDate', function(date) {
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  return new Date(date).toLocaleDateString(undefined, options);
+});
+
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
@@ -25,8 +38,8 @@ const hbs = handlebars.create({
   helpers: {
     formatDate: function(date) {
       if (!date) return '';
-      // Assuming date is in ISO format, split at 'T' to remove the time portion
-      return date.split('T')[0];
+      const dateStr = typeof date === 'string' ? date : new Date(date).toISOString();
+      return dateStr.split('T')[0];
     }
   }
 });
@@ -40,6 +53,7 @@ const dbConfig = {
   password: process.env.POSTGRES_PASSWORD, // the password of the user account
 };
 
+
 const db = pgp(dbConfig);
 
 // test your database
@@ -51,6 +65,29 @@ db.connect()
   .catch(error => {
     console.log('ERROR:', error.message || error);
   });
+
+  (async () => {
+    const userCount = await db.one('SELECT COUNT(*) FROM "user"', [], a => +a.count);
+    if (userCount === 0) {
+      const pw1 = await bcrypt.hash('password123', 10);
+      const pw2 = await bcrypt.hash('securepass456', 10);
+      const pw3 = await bcrypt.hash('mikepass789', 10);
+  
+      try {
+        await db.none(`
+          INSERT INTO "user" (username, password, email, about_me, epic_pass, ikon_pass, fav_mountains)
+          VALUES 
+          ('john_doe', $1, 'john.doe@fake.com', 'I just love snowboarding so much, and I am incredibly grateful this app is allowing me to make friends in the process. Yew!!', true, true, 'Aspen, Breckenridge'),
+          ('jane_smith', $2, 'jane.smith@fake.com', 'Skiing is my passion. Vail is home.', true, false, 'Vail'),
+          ('mike_brown', $3, 'mike.brown@fake.com', 'Looking to make new friends through weekend trips.', false, true, 'Copper Mountain');
+        `, [pw1, pw2, pw3]);
+      } catch (err) {
+        console.error('Error inserting fake users:', err.message);
+      }
+    } else {
+      console.log('Users already exist, skipping seeding');
+    }
+  })();
 
 // *****************************************************
 // <!-- Section 3 : App Settings -->
@@ -235,7 +272,7 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    const query = 'SELECT * FROM user WHERE username = $1';
+    const query = 'SELECT * FROM "user" WHERE username = $1';
     const user = await db.oneOrNone(query, [username]);
 
     if (!user) {
@@ -258,6 +295,46 @@ app.post('/login', async (req, res) => {
   }
 });
 
+app.get('/rate/:tripID', async (req, res) => {
+  const { tripID } = req.params;
+  const username = req.session.user.username;
+
+  try {
+    // Get trip details
+    const trip = await db.one('SELECT * FROM trips WHERE tripID = $1', [tripID]);
+
+    // Get driver info
+    const driver = await db.one('SELECT username FROM driverInfo WHERE driverID = $1', [trip.driverid]);
+
+    // Check if current user is the driver or a passenger
+    const isDriver = username === driver.username;
+
+    // Get passenger usernames (for driver to rate)
+    const passengerIDs = await db.any('SELECT passenger FROM passengers WHERE tripID = $1', [tripID]);
+
+    let passengers = [];
+
+    if (passengerIDs.length > 0) {
+      passengers = await db.any(
+        'SELECT username FROM riderInfo WHERE riderID IN ($1:csv)',
+        [passengerIDs.map(p => p.passenger)]
+      );
+    }
+
+    res.render('pages/rateTrip', {
+      isDriver,
+      trip,
+      driver: driver.username,
+      passengers,
+      user: req.session.user.username
+    });
+
+  } catch (err) {
+    console.error('Error loading rating modal data:', err);
+    res.status(500).send('Server error loading rating info');
+  }
+});
+
     // Authentication Middleware.
     // const auth = (req, res, next) => {
     //   if (!req.session.user) {
@@ -273,6 +350,53 @@ app.post('/login', async (req, res) => {
 //Drivers Page(s)
 
 //Ride Page(s)
+
+
+app.post('/signup', async (req, res) => {
+  // Ensure the user is logged in.
+  if (!req.session.user) {
+    return res.status(401).send("Please log in to sign up for a ride.");
+  }
+  // Get the currently logged in user's username.
+  const loggedInUsername = req.session.user.username;
+
+  // Extract form data from the request body.
+  const {
+    tripId,
+    fullName,
+    emailAddress,
+    phoneNumber,
+    paymentOption,
+    pickupLocation,
+    partySize,
+    specialRequirements
+  } = req.body;
+
+  try {
+    await db.none(
+      `INSERT INTO rideSignups (
+         tripID, username, fullName, emailAddress, phoneNumber, paymentOption,
+         pickupLocation, partySize, specialRequirements
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        tripId,
+        loggedInUsername,
+        fullName,
+        emailAddress,
+        phoneNumber,
+        paymentOption,
+        pickupLocation,
+        partySize,
+        specialRequirements
+      ]
+    );
+    // Redirect to a thank-you page (create this view as needed)
+    res.redirect('/thank-you');
+  } catch (error) {
+    console.error("Error saving sign-up data:", error);
+    res.status(500).send("An error occurred while saving your sign-up information.");
+  }
+});
 
 // Logout
 app.get('/logout', (req, res) => {
@@ -293,15 +417,26 @@ app.get('/profile', async (req, res) => {
 
     const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [req.session.user.username]);
 
+    const driverID = driver.driverid;
+    const reviews = await db.any(`
+      SELECT dr.stars, dr.message, dr.reviewedBy, dr.date
+      FROM driverRatings dr
+      WHERE dr.driverID = $1
+      ORDER BY dr.date DESC
+      LIMIT 3
+    `, [driverID]);
+
     let trips = [];
     let pastTrips = [];
     let upcomingTrips = [];
     let avgRating = null;
+    let car = null;
     const today = new Date();
 
     if (driver) {
-      const driverID = driver.driverid;
       avgRating = driver.avg_rating;
+
+      car = await db.oneOrNone('SELECT * FROM car WHERE ownerID = $1', [driverID]);
 
       trips = await db.any(`
         SELECT t.date, t.resort, r.location
@@ -318,6 +453,9 @@ app.get('/profile', async (req, res) => {
     res.render('pages/profile', {
       user,
       avgRating,
+      driverInfo: driver,
+      car,
+      reviews,
       pastTrips,
       upcomingTrips,
       hasIkonPass: true 
@@ -326,5 +464,76 @@ app.get('/profile', async (req, res) => {
   } catch (err) {
     console.error('Error loading profile:', err);
     res.status(500).send("Server error");
+  }
+});
+app.get('/profile/edit', async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+
+  const username = req.session.user.username;
+
+  try {
+    const user = await db.one('SELECT * FROM "user" WHERE username = $1', [username]);
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+    const car = driver ? await db.oneOrNone('SELECT * FROM car WHERE ownerID = $1', [driver.driverid]) : null;
+
+    res.render('pages/editProfile', {
+      user,
+      car
+    });
+  } catch (err) {
+    console.error('Error loading edit profile:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+// Handle Edit Profile Form Submission
+app.post('/profile/edit', async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+
+  const username = req.session.user.username;
+  const {
+    email,
+    about_me,
+    epic_pass,
+    ikon_pass,
+    fav_mountains,
+    make,
+    model,
+    color,
+    carType,
+    drivetrain,
+    licensePlate
+  } = req.body;
+  
+
+  try {
+    await db.none(`
+      UPDATE "user"
+      SET email = $1, about_me = $2, epic_pass = $3, ikon_pass = $4, fav_mountains = $5
+      WHERE username = $6
+    `, [email, about_me, epic_pass === 'on', ikon_pass === 'on', fav_mountains, username]);
+
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+    if (driver) {
+      const existingCar = await db.oneOrNone('SELECT * FROM car WHERE ownerID = $1', [driver.driverid]);
+
+      if (existingCar) {
+        await db.none(`
+          UPDATE car
+          SET make = $1, model = $2, color = $3, carType = $4, drivetrain = $5, licensePlate = $6
+          WHERE ownerID = $7
+        `, [make, model, color, carType, drivetrain, licensePlate, driver.driverid]);
+      } else {
+        await db.none(`
+          INSERT INTO car (licensePlate, ownerID, make, model, color, carType, drivetrain)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `, [licensePlate, driver.driverid, make, model, color, carType, drivetrain]);
+      }
+    }
+
+    res.redirect('/profile');
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    res.status(500).send('Update failed');
   }
 });
