@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS "user";
-CREATE TABLE "user"(
+CREATE TABLE "users_db"(
     username VARCHAR(50) PRIMARY KEY,
     password VARCHAR(60) NOT NULL,
     email VARCHAR(200)
