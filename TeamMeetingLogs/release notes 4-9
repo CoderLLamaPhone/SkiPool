@@ -1,0 +1,10 @@
+Release Notes - April 2nd
+
+What we've done in the past week:
+
+- Added a live messaging page
+- Profile page is now up
+- Able to update your profile
+- Test cases to check whether server is running properly
+- Signups to a trip show up in database
+- Implement endpoints for drive page
