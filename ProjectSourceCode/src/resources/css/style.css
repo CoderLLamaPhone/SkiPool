@@ -5,12 +5,59 @@ body {
     background: #f2f2f2;
   }
 
-  .test {
-    background-color: rgb(201, 238, 239);
-    margin: auto;
-    width: 50%;
+  .ski-logo {
+    width: 200px;
+    height: auto;
+    margin-bottom: 0px;
+  }
+
+  .login-container {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    max-width: 250px;
     padding: 20px;
-    border-radius: 10px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .login-container h2 {
+    max-width: 300px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    max-width: 300px;
+    margin-bottom: 30px;
+  }
+  .login-form label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  .login-form input[type="text"],
+  .login-form input[type="password"] {
+    padding: 10px;
+    margin-bottom: 0px;
+    border: 1px solid #1916d7;
+    border-radius: 4px;
+    width: 100%;
+  }
+  .login-form button {
+    background: #1e3d58;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .login-form button:hover {
+    background: darkslategrey;
   }
 
 
