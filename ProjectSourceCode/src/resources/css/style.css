@@ -5,22 +5,41 @@ body {
     background: #f2f2f2;
   }
 
+.nav-logo {
+    width: 90px;
+    height: auto;
+    margin-left: 20px;
+  }
+.c-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1e3d58;
+    padding: 10px 20px;
+    color: white;
+  }
+
+/* ----------Login Register Page CSS---------- */
   .ski-logo {
     width: 200px;
     height: auto;
-    margin-bottom: 0px;
+    margin-bottom: -30px;
   }
 
   .login-container {
-    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    max-height: 100vh;
+    justify-content: space-between;
     align-items: center;
     text-align: center;
     margin-top: 20px;
     margin-bottom: 20px;
-    max-width: 250px;
     padding: 20px;
-    background: #fff;
+    background: rgb(237, 236, 236);
     border-radius: 5px;
+    border: 1px solid #ddd;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
   .login-container h2 {
@@ -60,7 +79,7 @@ body {
     background: darkslategrey;
   }
 
-
+/* ---------Profile Page CSS--------- */
   .card {
     background: #fff;
     border: 1px solid #ddd;
