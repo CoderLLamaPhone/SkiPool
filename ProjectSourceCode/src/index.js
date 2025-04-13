@@ -323,7 +323,8 @@ app.post('/driver', async (req, res) => {
     price,
     pickupLocation,
     departureDate,
-    car
+    car,
+    info
   } = req.body;
 
   console.log("BODY:", req.body);
@@ -343,9 +344,9 @@ app.post('/driver', async (req, res) => {
     const insertTripQuery = `
     INSERT INTO trips (
       driverID, capacity, resort, EST_outbound, EST_return, 
-      cost, pickupLocation, date, car
+      cost, pickupLocation, date, car, info
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     RETURNING *;
   `;
 
@@ -359,7 +360,8 @@ app.post('/driver', async (req, res) => {
       price,
       pickupLocation,
       departureDate,
-      car
+      car,
+      info
     ];
     
     const newTrip = await db.one(insertTripQuery, tripData);
