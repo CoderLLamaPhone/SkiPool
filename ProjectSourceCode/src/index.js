@@ -345,7 +345,8 @@ app.post('/driver', async (req, res) => {
     price,
     pickupLocation,
     departureDate,
-    car
+    car,
+    info
   } = req.body;
 
   console.log("BODY:", req.body);
@@ -365,9 +366,9 @@ app.post('/driver', async (req, res) => {
     const insertTripQuery = `
     INSERT INTO trips (
       driverID, capacity, resort, EST_outbound, EST_return, 
-      cost, pickupLocation, date, car
+      cost, pickupLocation, date, car, info
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     RETURNING *;
   `;
 
@@ -381,7 +382,8 @@ app.post('/driver', async (req, res) => {
       price,
       pickupLocation,
       departureDate,
-      car
+      car,
+      info
     ];
     
     const newTrip = await db.one(insertTripQuery, tripData);
@@ -392,6 +394,19 @@ app.post('/driver', async (req, res) => {
   catch(error){
     console.error('Error inserting trip:', error);
     res.status(500).send('Error creating trip');
+  }
+});
+
+app.post('/trips/delete/:tripid', async (req, res) => {
+  const tripId = req.params.tripid;
+  
+  try{
+    await db.none('DELETE FROM trips WHERE tripID = $1', [tripId]);
+    res.redirect('/driver');
+  } 
+  catch(error){
+    console.error('Error deleting trip:', error);
+    res.status(500).send('Failed to delete trip');
   }
 });
 
