@@ -253,45 +253,53 @@ app.get('/driver', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
+  const { username, password, email } = req.body;
+
+  // Check for missing fields
+  if (!username || !password || !email) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
   try {
-    if (!req.body.username || !req.body.password) {
-      return res.status(400).render('pages/register', { error: 'Username and password are required.' });
+    const existingUser = await db.oneOrNone('SELECT * FROM "user" WHERE username = $1', [username]);
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username already taken' });
     }
-    const hash = await bcrypt.hash(req.body.password, 10);
-    const query =
-      'INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING *';
-    const insertData = await db.one(query, [req.body.username, hash]);
-    console.log('Inserted values:', insertData);
-    res.redirect('/login');
-  } catch (error) {
-    console.error('Error during registration:', error);
-    res.status(400).render('pages/register', { error: 'Registration failed. Please try again.' });
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    await db.none('INSERT INTO "user" (username, password, email) VALUES ($1, $2, $3)', [username, hashedPassword, email]);
+    req.session.user = {
+      username,
+      email
+    };
+    
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (err) {
+    console.error('Error registering user:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
 app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
   try {
-    const { username, password } = req.body;
-    const query = 'SELECT * FROM "user" WHERE username = $1';
-    const user = await db.oneOrNone(query, [username]);
+    const user = await db.oneOrNone('SELECT * FROM "user" WHERE username = $1', [username]);
 
-    if (!user) {
-      return res.redirect('/register');
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      return res.status(401).send("Invalid username or password");
     }
 
-    const match = await bcrypt.compare(password, user.password);
+    req.session.user = {
+      username: user.username,
+      email: user.email
+    };
 
-    if (!match) {
-      return res.render('pages/login', { error: 'Incorrect username or password.' });
-    }
-
-    req.session.user = user;
-    req.session.save(() => {
-      res.redirect('/profile');
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    res.render('pages/login', { error: 'An error occurred. Please try again.' });
+    res.status(200).redirect('/profile');
+  } catch (err) {
+    console.error('Error logging in:', err);
+    res.status(500).send("Server error");
   }
 });
 
@@ -409,23 +417,14 @@ app.get('/logout', (req, res) => {
 
 app.get('/profile', async (req, res) => {
   if (!req.session.user) {
-    return res.status(401).redirect('/login');
+    return res.status(401).json({ message: "Unauthorized: Please log in." });
   }
 
   try {
     const user = await db.one('SELECT * FROM "user" WHERE username = $1', [req.session.user.username]);
-
     const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [req.session.user.username]);
-
-    const driverID = driver.driverid;
-    const reviews = await db.any(`
-      SELECT dr.stars, dr.message, dr.reviewedBy, dr.date
-      FROM driverRatings dr
-      WHERE dr.driverID = $1
-      ORDER BY dr.date DESC
-      LIMIT 3
-    `, [driverID]);
-
+    let driverID = null;
+    let reviews = [];
     let trips = [];
     let pastTrips = [];
     let upcomingTrips = [];
@@ -434,38 +433,30 @@ app.get('/profile', async (req, res) => {
     const today = new Date();
 
     if (driver) {
+      driverID = driver.driverid;
       avgRating = driver.avg_rating;
-
       car = await db.oneOrNone('SELECT * FROM car WHERE ownerID = $1', [driverID]);
-
-      trips = await db.any(`
-        SELECT t.date, t.resort, r.location
-        FROM trips t
-        JOIN resort r ON t.resort = r.name
-        WHERE t.driverid = $1
-        ORDER BY t.date DESC
-      `, [driverID]);
-
+      reviews = await db.any(`SELECT dr.stars, dr.message, dr.reviewedBy, dr.date FROM driverRatings dr WHERE dr.driverID = $1 ORDER BY dr.date DESC LIMIT 3`, [driverID]);
+      trips = await db.any(`SELECT t.date, t.resort, r.location FROM trips t JOIN resort r ON t.resort = r.name WHERE t.driverid = $1 ORDER BY t.date DESC`, [driverID]);
       pastTrips = trips.filter(trip => new Date(trip.date) < today);
       upcomingTrips = trips.filter(trip => new Date(trip.date) >= today);
     }
 
-    res.render('pages/profile', {
+    res.status(200).json({
       user,
-      avgRating,
-      driverInfo: driver,
-      car,
-      reviews,
-      pastTrips,
-      upcomingTrips,
-      hasIkonPass: true 
+      avgRating: avgRating || null,
+      driverInfo: driver || null,
+      car: car || null,
+      reviews: reviews || [],
+      pastTrips: pastTrips || [],
+      upcomingTrips: upcomingTrips || [],
     });
-
   } catch (err) {
     console.error('Error loading profile:', err);
-    res.status(500).send("Server error");
+    res.status(500).json({ message: "Server error" });
   }
 });
+
 app.get('/profile/edit', async (req, res) => {
   if (!req.session.user) return res.redirect('/login');
 
