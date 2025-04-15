@@ -28,6 +28,9 @@
                                         <strong>Car:</strong> {{car}} <br>
                                         <strong>Additional Info:</strong> {{info}} <br>
                                     </p>
+                                    <form action="/trips/delete/{{tripid}}" method="POST" class="text-end">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
                                 </div>
                             </div>
                         {{/each}}

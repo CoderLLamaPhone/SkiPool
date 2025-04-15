@@ -375,6 +375,19 @@ app.post('/driver', async (req, res) => {
   }
 });
 
+app.post('/trips/delete/:tripid', async (req, res) => {
+  const tripId = req.params.tripid;
+  
+  try{
+    await db.none('DELETE FROM trips WHERE tripID = $1', [tripId]);
+    res.redirect('/driver');
+  } 
+  catch(error){
+    console.error('Error deleting trip:', error);
+    res.status(500).send('Failed to delete trip');
+  }
+});
+
 
 app.post('/register', async (req, res) => {
   try {
