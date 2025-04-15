@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Ski Pool - Find a Ride</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     .trip-details p {
@@ -14,7 +15,7 @@
       width: 60px;
       height: 60px;
       border-radius: 50%;
-      background-color: #6c757d; 
+      background-color: #6c757d;
       color: #fff;
       display: flex;
       align-items: center;
@@ -110,7 +111,6 @@
                           <p><strong>Return Time:</strong> {{est_return}}</p>
                         </div>
                         <div class="col-md-6">
-                          <!-- Updated to display Remaining Seats as X/Y -->
                           <p><strong>Remaining Seats:</strong> {{remainingSeats}}/{{capacity}}</p>
                           <p><strong>Resort:</strong> {{resort}}</p>
                           <p><strong>Pass:</strong> {{pass}}</p>
@@ -119,15 +119,31 @@
                       </div>
                     </div>
                     <div class="col-md-2 d-flex align-items-center justify-content-center">
-                      <!-- The button now passes driver, destination, and tripid data -->
-                      <button class="btn btn-success"
-                        data-bs-toggle="modal"
-                        data-bs-target="#signupModal"
-                        data-driver="{{username}}"
-                        data-destination="{{resort}}"
-                        data-tripid="{{tripid}}">
-                        Sign Up
-                      </button>
+                      {{#if isUserSignedUp}}
+                        <div class="d-flex flex-column align-items-center">
+                          <div class="badge bg-success mb-2">
+                            &#10003; Signed up
+                          </div>
+                          <button class="btn btn-warning"
+                            data-bs-toggle="modal"
+                            data-bs-target="#signupModal"
+                            data-driver="{{username}}"
+                            data-destination="{{resort}}"
+                            data-tripid="{{tripid}}"
+                            data-signup='{{json userSignup}}'>
+                            Edit Ride
+                          </button>
+                        </div>
+                      {{else}}
+                        <button class="btn btn-success"
+                          data-bs-toggle="modal"
+                          data-bs-target="#signupModal"
+                          data-driver="{{username}}"
+                          data-destination="{{resort}}"
+                          data-tripid="{{tripid}}">
+                          Sign Up
+                        </button>
+                      {{/if}}
                     </div>
                   </div>
                 </div>
@@ -141,7 +157,7 @@
     </div>
   </div>
 
-  <!-- Sign Up Modal -->
+  <!-- Sign Up / Edit Ride Modal -->
   <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -152,6 +168,7 @@
         <div class="modal-body">
           <form id="signup-form" action="/signup" method="POST">
             <input type="hidden" name="tripId" id="tripId">
+            <input type="hidden" name="signupId" id="signupId">
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
@@ -204,16 +221,18 @@
           </form>
         </div>
         <div class="modal-footer">
+          <!-- Cancel Ride button only appears in edit mode -->
+          <button type="button" class="btn btn-danger" id="cancelRideButton" style="display: none;">Cancel Ride</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <!-- This button's text changes between "Sign Up" and "Save Changes" -->
           <button type="submit" form="signup-form" class="btn btn-primary">Sign Up</button>
         </div>
       </div>
     </div>
   </div>
-  
+
   <!-- Bootstrap JS Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Custom script to update modal header and set hidden tripId dynamically -->
   <script>
     var signupModal = document.getElementById('signupModal');
     signupModal.addEventListener('show.bs.modal', function (event) {
@@ -221,9 +240,45 @@
       var driver = button.getAttribute('data-driver');
       var destination = button.getAttribute('data-destination');
       var tripId = button.getAttribute('data-tripid');
+      var signupDataStr = button.getAttribute('data-signup');
       var modalTitle = signupModal.querySelector('.modal-title');
-      modalTitle.textContent = "Sign up for " + driver + "'s ride to " + destination;
+
+      // Reset the form each time the modal is shown.
+      var signupForm = document.getElementById('signup-form');
+      signupForm.reset();
+
+      // Set the trip ID in the hidden field.
       document.getElementById('tripId').value = tripId;
+      
+      // If signupData is provided, we are in edit mode.
+      if (signupDataStr) {
+        var signupData = JSON.parse(signupDataStr);
+        modalTitle.textContent = "Edit Ride for " + driver + "'s ride to " + destination;
+        document.getElementById('fullName').value = signupData.fullname || '';
+        document.getElementById('emailAddress').value = signupData.emailaddress || '';
+        document.getElementById('phoneNumber').value = signupData.phonenumber || '';
+        document.getElementById('pickupLocation').value = signupData.pickuplocation || '';
+        document.getElementById('partySize').value = signupData.partysize || '1';
+        document.getElementById('specialRequirements').value = signupData.specialrequirements || '';
+        document.getElementById('signupId').value = signupData.signupid || '';
+
+        signupForm.action = "/updateSignup";
+        document.getElementById('cancelRideButton').style.display = 'inline-block';
+        document.querySelector('#signupModal .btn-primary').textContent = "Save Changes";
+      } else {
+        modalTitle.textContent = "Sign Up for " + driver + "'s ride to " + destination;
+        document.getElementById('signupId').value = "";
+        signupForm.action = "/signup";
+        document.getElementById('cancelRideButton').style.display = 'none';
+        document.querySelector('#signupModal .btn-primary').textContent = "Sign Up";
+      }
+    });
+
+    document.getElementById('cancelRideButton').addEventListener('click', function () {
+      var signupId = document.getElementById('signupId').value;
+      if (signupId && confirm("Are you sure you want to cancel your ride?")) {
+        window.location.href = "/cancelSignup?signupId=" + signupId;
+      }
     });
   </script>
 </body>
