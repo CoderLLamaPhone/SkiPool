@@ -4,7 +4,7 @@ body {
     margin: 20px;
     background: #f2f2f2;
   }
-
+/* -----------NavBar Styles---------- */
 .nav-logo {
     width: 90px;
     height: auto;
@@ -114,6 +114,8 @@ body {
     font-size: 24px;
     color: gold;
   }
+
+  /* ----------Trips Section CSS---------- */
   .trips-section {
     display: flex;
     gap: 20px;
@@ -133,5 +135,15 @@ body {
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 4px;
+  }
+
+  /* --------Find A Ride CSS---------- */
+  .find-ride-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #1e3d58;
   }
 
