@@ -50,8 +50,8 @@ const hbs = handlebars.create({
 
 // database configuration
 const dbConfig = {
-  host: 'db', // the database server
-  port: 5432, // the database port
+  host: process.env.POSTGRES_HOST || 'db', // the database server
+  port: process.env.POSTGRES_PORT || 5432, // the database port
   database: process.env.POSTGRES_DB, // the database name
   user: process.env.POSTGRES_USER, // the user account to connect with
   password: process.env.POSTGRES_PASSWORD, // the password of the user account
@@ -305,6 +305,7 @@ app.get('/driver', async (req, res) => {
 
     const trips = await db.any(
       `SELECT 
+        tripid,
         pickupLocation, 
         resort, 
         date AS departureDate,
@@ -312,7 +313,8 @@ app.get('/driver', async (req, res) => {
         EST_return AS returnTime,
         cost AS price, 
         capacity AS seats,
-        car
+        car,
+        info
       FROM trips 
       WHERE driverID = $1
       ORDER BY date DESC`,
@@ -401,7 +403,7 @@ app.post('/trips/delete/:tripid', async (req, res) => {
   const tripId = req.params.tripid;
   
   try{
-    await db.none('DELETE FROM trips WHERE tripID = $1', [tripId]);
+    await db.none('DELETE FROM trips WHERE tripid = $1', [tripId]);
     res.redirect('/driver');
   } 
   catch(error){
@@ -663,23 +665,25 @@ app.get('/chats', async (req, res) => {
   try {
     const username = req.session.user.username;
 
-    // Check if the user is a driver or a passenger in any chatroom
-    const chatrooms = await db.any(`
-      SELECT c.chatroomid AS chatroom, d.username AS driver_username, r.username AS passenger_username
+    // Fetch all chatrooms the user is part of, either as a participant or creator
+    const chatroomIDs = await db.any(`
+      SELECT c.chatroomid AS chatroom
       FROM chatroom c
-      JOIN driverInfo d ON c.driver = d.driverID
-      JOIN riderInfo r ON c.passenger = r.riderID
-      WHERE d.username = $1 OR r.username = $1;
-      `, [username]);
-      chatrooms.forEach(chatroom => {
-        if (chatroom.driver_username !== username) {
-          chatroom.username = chatroom.driver_username;
-        } else if (chatroom.passenger_username !== username) {
-          chatroom.username = chatroom.passenger_username;
-        }
+      JOIN chatroomParticipants cp ON c.chatroomid = cp.chatroomID
+      WHERE cp.username = $1;
+    `, [username]);
+
+    let chatrooms = [];
+
+    for (const chatroom of chatroomIDs) {
+      const persons = await db.any('SELECT username FROM chatroomParticipants WHERE chatroomID = $1 AND username != $2', [chatroom.chatroom, username]);
+      chatrooms.push({
+        chatroom: chatroom.chatroom,
+        usernames: persons.map(person => person.username)
       });
-      console.log(chatrooms, username)
-      res.render('pages/chats', { chatrooms });
+    }
+
+    res.render('pages/chats', { chatrooms: chatrooms });
   } catch (error) {
     console.error('Error fetching chatrooms:', error);
     res.render('pages/home');
@@ -694,24 +698,18 @@ app.get('/chatroom/:id', async (req, res) => {
   const chatroomId = req.params.id;
 
   try {
-    // Check if the chatroom exists in the database
+    const username = req.session.user.username;
+
+    // Check if the chatroom exists in the database and whether user has access
     const chatroom = await db.oneOrNone(
-      `SELECT c.chatroomid, d.username AS driver_username, r.username AS passenger_username
+      `SELECT c.chatroomid
        FROM chatroom c
-       JOIN driverInfo d ON c.driver = d.driverID
-       JOIN riderInfo r ON c.passenger = r.riderID
-       WHERE c.chatroomid = $1`,
-      [chatroomId]
+       JOIN chatroomParticipants cp ON c.chatroomid = cp.chatroomID
+       WHERE c.chatroomid = $1 AND cp.username = $2`,
+      [chatroomId, req.session.user.username]
     );
 
     if (!chatroom) {
-      return res.status(404).send('Chatroom not found or you do not have access to it.');
-    }
-
-    // Render the chatroom page with chatroom details
-    const username = req.session.user.username;
-
-    if (username != chatroom.driver_username && username != chatroom.passenger_username) {
       return res.status(404).send('Chatroom not found or you do not have access to it.');
     }
 
@@ -724,9 +722,14 @@ app.get('/chatroom/:id', async (req, res) => {
       [chatroomId]
     );
 
+    const participants = await db.any(
+      `SELECT username FROM chatroomParticipants WHERE chatroomID = $1`,
+      [chatroomId]
+    );
+
     res.render('pages/chatroom', {
       chatroomId: chatroom.chatroomid,
-      users: [chatroom.driver_username, chatroom.passenger_username],
+      users: participants.map(user => user.username),
       messages: messages,
       user: username
     });
@@ -746,22 +749,17 @@ app.post('/chatroom/:id/message', async (req, res) => {
   const username = req.session.user.username;
 
   try {
-    // Check if the chatroom exists in the database
+    // Check if the chatroom exists in the database and if user has access to it
     const chatroom = await db.oneOrNone(
-      `SELECT c.chatroomid, d.username AS driver_username, r.username AS passenger_username
+      `SELECT c.chatroomid
        FROM chatroom c
-       JOIN driverInfo d ON c.driver = d.driverID
-       JOIN riderInfo r ON c.passenger = r.riderID
-       WHERE c.chatroomid = $1`,
-      [chatroomId]
+       JOIN chatroomParticipants cp ON c.chatroomid = cp.chatroomID
+       WHERE c.chatroomid = $1 AND cp.username = $2`,
+      [chatroomId, username]
     );
 
     if (!chatroom) {
-      return res.status(404).send('Chatroom not found or you do not have access to it.');
-    }
-
-    if (username !== chatroom.driver_username && username !== chatroom.passenger_username) {
-      return res.status(403).send('You do not have permission to send messages in this chatroom.');
+      return res.status(404).send('Chatroom not found or you do not have access to send messages in this chatroom.');
     }
 
     // Insert the new message into the database
@@ -771,8 +769,6 @@ app.post('/chatroom/:id/message', async (req, res) => {
       [chatroomId, message, username]
     );
     
-    console.log("Message sent:", message);
-
     res.redirect(`/chatroom/${chatroomId}`);
   } catch (error) {
     console.error('Error adding message:', error);
@@ -810,8 +806,7 @@ app.get('/profile', async (req, res) => {
     if (driver) {
       avgRating = driver.avg_rating;
 
-      car = await db.oneOrNone('SELECT * FROM car WHERE ownerID = $1', [driverID]);
-
+      cars = await db.any('SELECT * FROM car WHERE ownerID = $1', [driverID]);
       trips = await db.any(`
         SELECT t.date, t.resort, r.location
         FROM trips t
@@ -828,7 +823,7 @@ app.get('/profile', async (req, res) => {
       user,
       avgRating,
       driverInfo: driver,
-      car,
+      cars,
       reviews,
       pastTrips,
       upcomingTrips,
@@ -848,15 +843,62 @@ app.get('/profile/edit', async (req, res) => {
   try {
     const user = await db.one('SELECT * FROM "user" WHERE username = $1', [username]);
     const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
-    const car = driver ? await db.oneOrNone('SELECT * FROM car WHERE ownerID = $1', [driver.driverid]) : null;
+    const cars = driver ? await db.any('SELECT * FROM car WHERE ownerID = $1', [driver.driverid]) : null;
 
     res.render('pages/editProfile', {
       user,
-      car
+      cars
     });
   } catch (err) {
     console.error('Error loading edit profile:', err);
     res.status(500).send('Server error');
+  }
+});
+
+app.post('/profile/add-car', async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+
+  const username = req.session.user.username;
+  const { make, model, color, cartype, drivetrain, licenseplate } = req.body;
+
+  try {
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+
+    if (!driver) {
+      return res.status(400).send('Driver information not found.');
+    }
+
+    await db.none(`
+      INSERT INTO car (licensePlate, ownerID, make, model, color, carType, drivetrain)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `, [licenseplate, driver.driverid, make, model, color, cartype, drivetrain]);
+
+    res.redirect('/profile');
+  } catch (err) {
+    console.error('Error adding car:', err);
+    res.status(500).send('Failed to add car.');
+  }
+});
+
+app.post('/profile/remove-car', async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+
+  const username = req.session.user.username;
+  const { licenseplate } = req.body;
+
+  try {
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+
+    if (!driver) {
+      return res.status(400).send('Driver information not found.');
+    }
+
+    await db.none('DELETE FROM car WHERE licensePlate = $1 AND ownerID = $2', [licenseplate, driver.driverid]);
+
+    res.redirect('/profile');
+  } catch (err) {
+    console.error('Error removing car:', err);
+    res.status(500).send('Failed to remove car.');
   }
 });
 

@@ -34,19 +34,82 @@
 <!-- Driver Info Card -->
 {{#if driverInfo}}
   <div class="card">
-    {{#if car}}
+    {{#if cars.length}}
       <h3>Car Details</h3>
-      <ul>
-        <li><strong>Make:</strong> {{car.make}}</li>
-        <li><strong>Model:</strong> {{car.model}}</li>
-        <li><strong>Color:</strong> {{car.color}}</li>
-        <li><strong>Type:</strong> {{car.cartype}}</li>
-        <li><strong>Drivetrain:</strong> {{car.drivetrain}}</li>
-        <li><strong>License Plate:</strong> {{car.licenseplate}}</li>
+      <ul class="list-group">
+      {{#each cars}}
+      <li class="list-group-item" style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="flex: 1; min-width: 150px;">
+          <p><strong>Make:</strong> {{this.make}}</p>
+          <p><strong>Model:</strong> {{this.model}}</p>
+          <p><strong>Color:</strong> {{this.color}}</p>
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+          <p><strong>Type:</strong> {{this.cartype}}</p>
+          <p><strong>Drivetrain:</strong> {{this.drivetrain}}</p>
+          <p><strong>License Plate:</strong> {{this.licenseplate}}</p>
+        </div>
+        <div style="flex: 1; min-width: 200px; display: flex; align-items: flex-start;">
+          <form action="/profile/remove-car" method="POST" style="margin-top: 10px;">
+            <input type="hidden" name="licenseplate" value="{{this.licenseplate}}">
+            <button type="submit" style="
+              padding: 6px 12px;
+              font-size: 14px;
+              background-color: #d9534f;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+            ">Remove Car</button>
+          </form>
+        </div>
+      </li>
+      {{/each}}
       </ul>
+      <br />
     {{else}}
-      <p>No car registered.</p>
+      <p class="text-muted">No cars registered.</p>
     {{/if}}
+    <div class="mt-4"></div>
+      <h3>Add a Car</h3>
+      <form action="/profile/add-car" method="POST" class="needs-validation" novalidate>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="make" class="form-label">Make:</label>
+            <input type="text" id="make" name="make" class="form-control" required>
+            <div class="invalid-feedback">Please provide the car make.</div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="model" class="form-label">Model:</label>
+            <input type="text" id="model" name="model" class="form-control" required>
+            <div class="invalid-feedback">Please provide the car model.</div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="color" class="form-label">Color:</label>
+            <input type="text" id="color" name="color" class="form-control" required>
+            <div class="invalid-feedback">Please provide the car color.</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="cartype" class="form-label">Type:</label>
+            <input type="text" id="cartype" name="cartype" class="form-control" required>
+            <div class="invalid-feedback">Please provide the car type.</div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="drivetrain" class="form-label">Drivetrain:</label>
+            <input type="text" id="drivetrain" name="drivetrain" class="form-control" required>
+            <div class="invalid-feedback">Please provide the drivetrain.</div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="licenseplate" class="form-label">License Plate:</label>
+            <input type="text" id="licenseplate" name="licenseplate" class="form-control" required>
+            <div class="invalid-feedback">Please provide the license plate.</div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Car</button>
+      </form>
+    </div>
   </div>
 {{/if}}
 
