@@ -1015,3 +1015,58 @@ app.get('/profile/:username', async (req, res) => {
   }
 });
 
+
+
+app.get('/submitRating', async (req, res) => {
+  // 1) Auth check
+  if (!req.session.user) {
+    return res.status(401).send("Please log in to submit a rating.");
+  }
+ 
+ 
+  const reviewedBy = req.session.user.username;
+  const { tripId, rating } = req.query;
+ 
+ 
+  // 2) Validate
+  if (!tripId || !rating || isNaN(rating) || rating < 1 || rating > 5) {
+    return res.status(400).send("Missing or invalid tripId/rating.");
+  }
+ 
+ 
+  try {
+    // 3) Lookup driverID for this trip
+    const { driverid } = await db.one(
+      `SELECT driverID
+         FROM trips
+        WHERE tripID = $1`,
+      [tripId]
+    );
+ 
+ 
+    // 4) Insert into driverRatings
+    await db.none(
+      `INSERT INTO driverRatings
+         (driverID, stars, message, reviewedBy, tripID, date)
+       VALUES ($1, $2, $3, $4, $5, CURRENT_DATE)`,
+      [driverid, Number(rating), '', reviewedBy, tripId]
+    );
+ 
+ 
+    // 5) Single response: alert + redirect
+    return res.send(`
+      <script>
+        alert('Thanks for submitting a rating');
+        window.location.href = '/profile';
+      </script>
+    `);
+  } catch (error) {
+    console.error("Error submitting rating:", error);
+    // Only send error if we haven’t already sent headers
+    if (!res.headersSent) {
+      return res.status(500).send("An error occurred while submitting your rating.");
+    }
+    // otherwise just swallow it
+  }
+ });
+ 
