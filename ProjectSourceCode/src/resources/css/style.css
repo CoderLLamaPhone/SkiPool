@@ -1,21 +1,50 @@
 
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
+    font-family: "Markazi Text", serif;
+    margin: 10px;
     background: #f2f2f2;
   }
 
 .nav-logo {
-    width: 90px;
+    width: 120px;
     height: auto;
     margin-left: 20px;
   }
-.c-navbar {
+.navbar {
+    max-height: 70px;
+    font-family: "Goldman", sans-serif;
+    font-size: 1.3rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #1e3d58;
     padding: 10px 20px;
+  }
+  .navbar-nav {
+    display: flex;
+    width : 80%;
+    list-style: none;
+    justify-content: center;
+    padding: 0;
+    margin-right: 20px;
+    /* margin-left: 20px; */
+    gap: 20px;
+  }
+  .nav-item:hover {
+    background-color: #1e3d58;
+    color: white;
+  }
+  .nav-item {
+    text-decoration: none;
+    padding: 6px, 10px;
+    border-radius: 10px;
+    transition: background-color 0.4s ease;
+  }
+  .nav-item.active {
+    background-color: #f39c12;
+    color: white;
+  }
+  .nav-item:hover {
+    background-color: #f39c12;
     color: white;
   }
 
@@ -29,7 +58,6 @@ body {
   .login-container {
     display: flex;
     flex-direction: column;
-    max-width: 300px;
     max-height: 100vh;
     justify-content: space-between;
     align-items: center;
@@ -37,15 +65,16 @@ body {
     margin-top: 20px;
     margin-bottom: 20px;
     padding: 20px;
-    background: rgb(237, 236, 236);
+    background-color: #dbe9f6;
     border-radius: 5px;
     border: 1px solid #ddd;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
-  .login-container h2 {
-    max-width: 300px;
+  .login-container h3 {
     margin-bottom: 20px;
     text-align: center;
+    font-family: "Goldman", sans-serif;
+    font-size: 1.7rem;
   }
   .login-form {
     display: flex;
@@ -57,6 +86,8 @@ body {
   .login-form label {
     margin-bottom: 5px;
     font-weight: bold;
+    font-family: "Markazi Text", serif;
+    font-size: 1.6rem;
   }
   .login-form input[type="text"],
   .login-form input[type="password"] {
@@ -73,10 +104,16 @@ body {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
+    font-family: "Goldman", sans-serif;
+    font-size: 1.5rem;
   }
   .login-form button:hover {
     background: darkslategrey;
+  }
+  .login-form p {
+    margin-top: 10px;
+    font-family: "Markazi Text", serif;
+    font-size: 1.6rem;
   }
 
 /* ---------Profile Page CSS--------- */
