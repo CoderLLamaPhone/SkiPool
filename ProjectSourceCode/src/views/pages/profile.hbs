@@ -1,8 +1,6 @@
 <!-- Profile Card -->
-<div class="card">
+<div>
   <div class="profile-container" style="display: flex; align-items: flex-start; justify-content: space-between; position: relative;">
-
-
     <div class="profile-details" style="flex-grow: 1; padding-left: 20px; position: relative;">
       <div style="position: absolute; top: 0; right: 0;">
         <a href="/profile/edit">
@@ -23,19 +21,23 @@
       <h1 style="margin-top: 0;">{{user.username}}</h1>
       <p><strong>Email:</strong> {{user.email}}</p>
       <p><strong>About Me:</strong> {{user.about_me}}</p>
-      <p><strong>Ikon Pass:</strong> {{#if user.ikon_pass}}Yes{{else}}No{{/if}}</p>
-      <p><strong>Epic Pass:</strong> {{#if user.epic_pass}}Yes{{else}}No{{/if}}</p>
-      <p><strong>Favorite Mountains:</strong> {{user.fav_mountains}}</p>
     </div>
 
   </div>
 </div>
 
+<div class="card ski-preferences">
+    <h3>Ski Preferences</h3>
+    <p><strong>Ikon Pass:</strong> {{#if user.ikon_pass}}Yes{{else}}No{{/if}}</p>
+    <p><strong>Epic Pass:</strong> {{#if user.epic_pass}}Yes{{else}}No{{/if}}</p>
+    <p><strong>Favorite Mountains:</strong> {{user.fav_mountains}}</p>
+</div>
+
 <!-- Driver Info Card -->
 {{#if driverInfo}}
-  <div class="card">
+  <div class="card driver-details">
+    <h3>Car Details</h3>
     {{#if car}}
-      <h3>Car Details</h3>
       <ul>
         <li><strong>Make:</strong> {{car.make}}</li>
         <li><strong>Model:</strong> {{car.model}}</li>

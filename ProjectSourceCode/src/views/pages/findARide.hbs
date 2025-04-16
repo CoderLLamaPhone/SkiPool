@@ -36,6 +36,10 @@
       font-size: 1.3rem;
       color: #333;
     }
+    .trips-list-container {
+      max-height: 580px;
+      overflow-y: auto;
+    }
     .btn-search {
       background-color: #3b75a8;
       color: #fff;
@@ -53,6 +57,14 @@
     .btn-trip-signup:hover {
       background-color: #d57520;
       color: #fff;
+    }
+    .form-check-input:checked {
+      background-color: #f39c12;
+      border-color: #f39c12;
+    }
+    .form-check-input:focus {
+      border-color: #d57520;
+      box-shadow: 0 0 0 0.2rem rgba(168, 139, 59, 0.25);
     }
   </style>
 </head>
@@ -120,7 +132,7 @@
           <div class="card-header">
             <h2 class="h5 mb-0">Available Trips in Colorado</h2>
           </div>
-          <div class="card-body">
+          <div class="card-body trips-list-container">
             {{#if trips.length}}
               {{#each trips}}
                 <div class="card mb-3 trips-listing">
