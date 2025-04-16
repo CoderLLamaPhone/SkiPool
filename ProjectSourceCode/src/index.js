@@ -305,6 +305,7 @@ app.get('/driver', async (req, res) => {
 
     const trips = await db.any(
       `SELECT 
+        tripid,
         pickupLocation, 
         resort, 
         date AS departureDate,
@@ -312,7 +313,8 @@ app.get('/driver', async (req, res) => {
         EST_return AS returnTime,
         cost AS price, 
         capacity AS seats,
-        car
+        car,
+        info
       FROM trips 
       WHERE driverID = $1
       ORDER BY date DESC`,
@@ -401,7 +403,7 @@ app.post('/trips/delete/:tripid', async (req, res) => {
   const tripId = req.params.tripid;
   
   try{
-    await db.none('DELETE FROM trips WHERE tripID = $1', [tripId]);
+    await db.none('DELETE FROM trips WHERE tripid = $1', [tripId]);
     res.redirect('/driver');
   } 
   catch(error){
