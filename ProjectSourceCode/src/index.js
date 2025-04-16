@@ -809,8 +809,7 @@ app.get('/profile', async (req, res) => {
     if (driver) {
       avgRating = driver.avg_rating;
 
-      car = await db.oneOrNone('SELECT * FROM car WHERE ownerID = $1', [driverID]);
-
+      cars = await db.any('SELECT * FROM car WHERE ownerID = $1', [driverID]);
       trips = await db.any(`
         SELECT t.date, t.resort, r.location
         FROM trips t
@@ -827,7 +826,7 @@ app.get('/profile', async (req, res) => {
       user,
       avgRating,
       driverInfo: driver,
-      car,
+      cars,
       reviews,
       pastTrips,
       upcomingTrips,
@@ -847,15 +846,62 @@ app.get('/profile/edit', async (req, res) => {
   try {
     const user = await db.one('SELECT * FROM "user" WHERE username = $1', [username]);
     const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
-    const car = driver ? await db.oneOrNone('SELECT * FROM car WHERE ownerID = $1', [driver.driverid]) : null;
+    const cars = driver ? await db.any('SELECT * FROM car WHERE ownerID = $1', [driver.driverid]) : null;
 
     res.render('pages/editProfile', {
       user,
-      car
+      cars
     });
   } catch (err) {
     console.error('Error loading edit profile:', err);
     res.status(500).send('Server error');
+  }
+});
+
+app.post('/profile/add-car', async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+
+  const username = req.session.user.username;
+  const { make, model, color, cartype, drivetrain, licenseplate } = req.body;
+
+  try {
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+
+    if (!driver) {
+      return res.status(400).send('Driver information not found.');
+    }
+
+    await db.none(`
+      INSERT INTO car (licensePlate, ownerID, make, model, color, carType, drivetrain)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `, [licenseplate, driver.driverid, make, model, color, cartype, drivetrain]);
+
+    res.redirect('/profile');
+  } catch (err) {
+    console.error('Error adding car:', err);
+    res.status(500).send('Failed to add car.');
+  }
+});
+
+app.post('/profile/remove-car', async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+
+  const username = req.session.user.username;
+  const { licenseplate } = req.body;
+
+  try {
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+
+    if (!driver) {
+      return res.status(400).send('Driver information not found.');
+    }
+
+    await db.none('DELETE FROM car WHERE licensePlate = $1 AND ownerID = $2', [licenseplate, driver.driverid]);
+
+    res.redirect('/profile');
+  } catch (err) {
+    console.error('Error removing car:', err);
+    res.status(500).send('Failed to remove car.');
   }
 });
 

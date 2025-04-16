@@ -6,8 +6,8 @@ INSERT INTO "user" (username, password, email) VALUES
 
 -- Insert fake entries into the driverInfo table
 INSERT INTO driverInfo (username, AVG_Rating) VALUES
-('john_doe', 4),
-('jane_smith', 4);
+('John Doe', 4),
+('Jane Smith', 4);
 
 -- Insert fake entries into the driverRatings table
 INSERT INTO driverRatings (driverID, stars, message, reviewedBy, tripID, date) VALUES
