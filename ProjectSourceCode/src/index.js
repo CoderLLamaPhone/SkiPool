@@ -776,6 +776,7 @@ app.post('/chatroom/:id/message', async (req, res) => {
   }
 });
 
+
 app.get('/profile', async (req, res) => {
   if (!req.session.user) {
     return res.status(401).redirect('/login');
@@ -952,3 +953,65 @@ app.post('/profile/edit', async (req, res) => {
     res.status(500).send('Update failed');
   }
 });
+
+app.get('/search', (req, res) => {
+  res.render('pages/searchUser');
+});
+
+app.post('/search', (req, res) => {
+  const { username } = req.body;
+  if (!username || username.trim() === '') {
+    return res.render('pages/searchUser', { error: 'Please enter a username.' });
+  }
+  res.redirect(`/profile/${username}`);
+});
+
+// View another user's profile
+app.get('/profile/:username', async (req, res) => {
+  const viewer = req.session.user?.username;
+  const profileUser = req.params.username;
+
+  try {
+    const user = await db.oneOrNone('SELECT * FROM "user" WHERE username = $1', [profileUser]);
+    if (!user) return res.status(404).render('pages/searchUser', { error: 'User not found.' });
+
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [profileUser]);
+
+    let avgRating = null;
+    let reviews = [];
+    let trips = [];
+
+    if (driver) {
+      avgRating = driver.avg_rating;
+      reviews = await db.any(`
+        SELECT dr.stars, dr.message, dr.reviewedBy, dr.date
+        FROM driverRatings dr
+        WHERE dr.driverID = $1
+        ORDER BY dr.date DESC
+        LIMIT 3
+      `, [driver.driverid]);
+
+      trips = await db.any(`
+        SELECT t.date, t.resort, r.location
+        FROM trips t
+        JOIN resort r ON t.resort = r.name
+        WHERE t.driverid = $1
+        ORDER BY t.date DESC
+      `, [driver.driverid]);
+    }
+
+    res.render('pages/viewProfile', {
+      user,
+      isSelf: viewer === profileUser,
+      avgRating,
+      trips,
+      reviews,
+      showFriendActions: viewer && viewer !== profileUser
+    });
+
+  } catch (err) {
+    console.error('Error viewing user profile:', err);
+    res.status(500).send('Server error');
+  }
+});
+
