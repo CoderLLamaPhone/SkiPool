@@ -665,23 +665,25 @@ app.get('/chats', async (req, res) => {
   try {
     const username = req.session.user.username;
 
-    // Check if the user is a driver or a passenger in any chatroom
-    const chatrooms = await db.any(`
-      SELECT c.chatroomid AS chatroom, d.username AS driver_username, r.username AS passenger_username
+    // Fetch all chatrooms the user is part of, either as a participant or creator
+    const chatroomIDs = await db.any(`
+      SELECT c.chatroomid AS chatroom
       FROM chatroom c
-      JOIN driverInfo d ON c.driver = d.driverID
-      JOIN riderInfo r ON c.passenger = r.riderID
-      WHERE d.username = $1 OR r.username = $1;
-      `, [username]);
-      chatrooms.forEach(chatroom => {
-        if (chatroom.driver_username !== username) {
-          chatroom.username = chatroom.driver_username;
-        } else if (chatroom.passenger_username !== username) {
-          chatroom.username = chatroom.passenger_username;
-        }
+      JOIN chatroomParticipants cp ON c.chatroomid = cp.chatroomID
+      WHERE cp.username = $1;
+    `, [username]);
+
+    let chatrooms = [];
+
+    for (const chatroom of chatroomIDs) {
+      const persons = await db.any('SELECT username FROM chatroomParticipants WHERE chatroomID = $1 AND username != $2', [chatroom.chatroom, username]);
+      chatrooms.push({
+        chatroom: chatroom.chatroom,
+        usernames: persons.map(person => person.username)
       });
-      console.log(chatrooms, username)
-      res.render('pages/chats', { chatrooms });
+    }
+
+    res.render('pages/chats', { chatrooms: chatrooms });
   } catch (error) {
     console.error('Error fetching chatrooms:', error);
     res.render('pages/home');
@@ -696,24 +698,18 @@ app.get('/chatroom/:id', async (req, res) => {
   const chatroomId = req.params.id;
 
   try {
-    // Check if the chatroom exists in the database
+    const username = req.session.user.username;
+
+    // Check if the chatroom exists in the database and whether user has access
     const chatroom = await db.oneOrNone(
-      `SELECT c.chatroomid, d.username AS driver_username, r.username AS passenger_username
+      `SELECT c.chatroomid
        FROM chatroom c
-       JOIN driverInfo d ON c.driver = d.driverID
-       JOIN riderInfo r ON c.passenger = r.riderID
-       WHERE c.chatroomid = $1`,
-      [chatroomId]
+       JOIN chatroomParticipants cp ON c.chatroomid = cp.chatroomID
+       WHERE c.chatroomid = $1 AND cp.username = $2`,
+      [chatroomId, req.session.user.username]
     );
 
     if (!chatroom) {
-      return res.status(404).send('Chatroom not found or you do not have access to it.');
-    }
-
-    // Render the chatroom page with chatroom details
-    const username = req.session.user.username;
-
-    if (username != chatroom.driver_username && username != chatroom.passenger_username) {
       return res.status(404).send('Chatroom not found or you do not have access to it.');
     }
 
@@ -726,9 +722,14 @@ app.get('/chatroom/:id', async (req, res) => {
       [chatroomId]
     );
 
+    const participants = await db.any(
+      `SELECT username FROM chatroomParticipants WHERE chatroomID = $1`,
+      [chatroomId]
+    );
+
     res.render('pages/chatroom', {
       chatroomId: chatroom.chatroomid,
-      users: [chatroom.driver_username, chatroom.passenger_username],
+      users: participants.map(user => user.username),
       messages: messages,
       user: username
     });
@@ -748,22 +749,17 @@ app.post('/chatroom/:id/message', async (req, res) => {
   const username = req.session.user.username;
 
   try {
-    // Check if the chatroom exists in the database
+    // Check if the chatroom exists in the database and if user has access to it
     const chatroom = await db.oneOrNone(
-      `SELECT c.chatroomid, d.username AS driver_username, r.username AS passenger_username
+      `SELECT c.chatroomid
        FROM chatroom c
-       JOIN driverInfo d ON c.driver = d.driverID
-       JOIN riderInfo r ON c.passenger = r.riderID
-       WHERE c.chatroomid = $1`,
-      [chatroomId]
+       JOIN chatroomParticipants cp ON c.chatroomid = cp.chatroomID
+       WHERE c.chatroomid = $1 AND cp.username = $2`,
+      [chatroomId, username]
     );
 
     if (!chatroom) {
-      return res.status(404).send('Chatroom not found or you do not have access to it.');
-    }
-
-    if (username !== chatroom.driver_username && username !== chatroom.passenger_username) {
-      return res.status(403).send('You do not have permission to send messages in this chatroom.');
+      return res.status(404).send('Chatroom not found or you do not have access to send messages in this chatroom.');
     }
 
     // Insert the new message into the database
@@ -773,8 +769,6 @@ app.post('/chatroom/:id/message', async (req, res) => {
       [chatroomId, message, username]
     );
     
-    console.log("Message sent:", message);
-
     res.redirect(`/chatroom/${chatroomId}`);
   } catch (error) {
     console.error('Error adding message:', error);
