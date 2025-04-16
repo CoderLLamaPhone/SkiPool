@@ -42,9 +42,22 @@ INSERT INTO trips (driverID, capacity, resort, EST_outbound, EST_return, cost, p
 (2, 3, 'Vail', '09:00:00', '17:00:00', 40, 'Uptown', '2023-10-02', 'XYZ789');
 
 -- Insert fake entries into the chatroom table
-INSERT INTO chatroom (driver, passenger) VALUES
-(1, 1),
-(2, 2);
+INSERT INTO chatroom (chatroomID) VALUES
+(DEFAULT),
+(DEFAULT);
+
+-- Insert fake entries into the chatroomParticipants table
+INSERT INTO chatroomParticipants (chatroomID, username) VALUES
+(1, 'John Doe'),
+(1, 'Mike Brown'),
+(1, 'Jane Smith'),
+(2, 'Jane Smith'),
+(2, 'John Doe');
+
+-- Insert fake entries into the message table
+INSERT INTO message (chatroomID, date, time, username, message) VALUES
+(1, '2023-10-01', '12:00:00', 'John Doe', 'Hello, are you ready for the trip?'),
+(2, '2023-10-02', '13:00:00', 'Jane Smith', 'Yes, I will be there on time.');
 
 -- Insert fake entries into the resort table
 INSERT INTO resort (name, location, pass) VALUES
@@ -60,8 +73,3 @@ INSERT INTO resort (name, location, pass) VALUES
 ('Breckenridge', 'Colorado', 'Epic'),
 ('Keystone', 'Colorado', 'Epic'),
 ('Crested Butte', 'Colorado', 'Epic');
-
--- Insert fake entries into the message table
-INSERT INTO message (chatroomID, date, time, username, message) VALUES
-(1, '2023-10-01', '12:00:00', 'John Doe', 'Hello, are you ready for the trip?'),
-(2, '2023-10-02', '13:00:00', 'Jane Smith', 'Yes, I will be there on time.');
