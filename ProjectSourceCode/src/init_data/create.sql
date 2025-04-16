@@ -73,21 +73,20 @@ CREATE TABLE trips(
     cost INTEGER NOT NULL,
     pickupLocation VARCHAR(50) NOT NULL,
     date DATE NOT NULL,
-    car VARCHAR(50) NOT NULL
+    car VARCHAR(50) NOT NULL,
+    info VARCHAR(250)
 );
 
 DROP TABLE IF EXISTS chatroom;
 CREATE TABLE chatroom(
-    chatroomID SERIAL PRIMARY KEY,
-    driver INTEGER NOT NULL,
-    passenger INTEGER NOT NULL
+    chatroomID SERIAL PRIMARY KEY
 );
 
-DROP TABLE IF EXISTS resort;
-CREATE TABLE resort(
-    name VARCHAR(50) PRIMARY KEY,
-    location VARCHAR(50) NOT NULL,
-    pass VARCHAR(20) NOT NULL
+DROP TABLE IF EXISTS chatroomParticipants;
+CREATE TABLE chatroomParticipants(
+    chatroomID INTEGER NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    PRIMARY KEY (chatroomID, username)
 );
 
 DROP TABLE IF EXISTS message;
@@ -98,6 +97,13 @@ CREATE TABLE message(
     time TIME NOT NULL,
     username VARCHAR(50) NOT NULL,
     message VARCHAR(500) NOT NULL
+);
+
+DROP TABLE IF EXISTS resort;
+CREATE TABLE resort(
+    name VARCHAR(50) PRIMARY KEY,
+    location VARCHAR(50) NOT NULL,
+    pass VARCHAR(20) NOT NULL
 );
 
 DROP TABLE IF EXISTS rideSignups;
