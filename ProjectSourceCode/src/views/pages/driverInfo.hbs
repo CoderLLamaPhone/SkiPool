@@ -18,15 +18,19 @@
                         {{#each trips}}
                             <div class="card mb-3">
                                 <div class="card-body">
-                                    <h5 class="card-title">{{pickupLocation}} → {{resort}}</h5>
+                                    <h5 class="card-title">{{pickuplocation}} → {{resort}}</h5>
                                     <p class="card-text">
-                                        <strong>Departure Date:</strong> {{departureDate}} <br>
+                                        <strong>Departure Date:</strong> {{departuredate}} <br>
                                         <strong>Price:</strong> ${{price}} <br>
                                         <strong>Available Seats:</strong> {{seats}} <br>
-                                        <strong>Gear Space:</strong> {{gearSpace}} <br>
+                                        <strong>Estimated Departure Time:</strong> {{departuretime}} <br>
+                                        <strong>Estimated Return Time:</strong> {{returntime}} <br>
+                                        <strong>Car:</strong> {{car}} <br>
                                         <strong>Additional Info:</strong> {{info}} <br>
-                                        <strong>Pass Type:</strong> {{pass}}
                                     </p>
+                                    <form action="/trips/delete/{{tripid}}" method="POST" class="text-end">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
                                 </div>
                             </div>
                         {{/each}}
@@ -59,18 +63,18 @@
                         <label for="resort" class="form-label">Destination Resort</label>
                         <select class="form-select" id="resort" name="resort" required>
                             <option value="">Select a Resort</option>
-                            <option value="breckenridge">Breckenridge</option>
-                            <option value="vail">Vail</option>
-                            <option value="aspensnowmass">Aspen Snowmass</option>
-                            <option value="copper">Copper Mountain</option>
-                            <option value="eldora">Eldora</option>
-                            <option value="winterpark">Winter Park</option>
-                            <option value="arapahoebasin">Arapahoe Basin</option>
-                            <option value="telluride">Telluride</option>
-                            <option value="steamboat">Steamboat</option>
-                            <option value="keystone">Keystone</option>
-                            <option value="crestedbutte">Crested Butte</option>
-                            <option value="beavercreek">Beaver Creek</option>
+                            <option value="Breckenridge">Breckenridge</option>
+                            <option value="Vail">Vail</option>
+                            <option value="Aspen Snowmass">Aspen Snowmass</option>
+                            <option value="Copper Mountain">Copper Mountain</option>
+                            <option value="Eldora">Eldora</option>
+                            <option value="Winter Park">Winter Park</option>
+                            <option value="Arapahoe Basin">Arapahoe Basin</option>
+                            <option value="Telluride">Telluride</option>
+                            <option value="Steamboat">Steamboat</option>
+                            <option value="Keystone">Keystone</option>
+                            <option value="Crested Butte">Crested Butte</option>
+                            <option value="Beaver Creek">Beaver Creek</option>
                         </select>
                     </div>
 
@@ -78,7 +82,17 @@
                         <label for="departureDate" class="form-label">Departure Date</label>
                         <input type="date" class="form-control" id="departureDate" name="departureDate" required>
                     </div>
+                    
+                    <div class="mb-3">
+                        <label for="departureTime" class="form-label">Estimated Departure Time</label>
+                        <input type="time" class="form-control" id="departureTime" name="departureTime" required>
+                    </div>
 
+                    <div class="mb-3">
+                        <label for="returnTime" class="form-label">Estimated Return Time</label>
+                        <input type="time" class="form-control" id="returnTime" name="returnTime" required>
+                    </div>
+                    
                     <div class="mb-3">
                         <label for="price" class="form-label">Price ($)</label>
                         <input type="number" class="form-control" id="price" name="price" required>
@@ -90,21 +104,13 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="gearSpace" class="form-label">Gear Space</label>
-                        <input type="text" class="form-control" id="gearSpace" name="gearSpace">
+                        <label for="car" class="form-label">Car</label>
+                        <input type="text" class="form-control" id="car" name="car">
                     </div>
 
                     <div class="mb-3">
                         <label for="info" class="form-label">Additional Info</label>
                         <textarea class="form-control" id="info" name="info"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="pass" class="form-label">Pass Type</label>
-                        <select class="form-select" id="pass" name="pass">
-                            <option value="ikon">Ikon</option>
-                            <option value="epic">Epic</option>
-                        </select>
                     </div>
 
                     <!-- Modal Footer -->

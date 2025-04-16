@@ -73,7 +73,8 @@ CREATE TABLE trips(
     cost INTEGER NOT NULL,
     pickupLocation VARCHAR(50) NOT NULL,
     date DATE NOT NULL,
-    car VARCHAR(50) NOT NULL
+    car VARCHAR(50) NOT NULL,
+    info VARCHAR(250)
 );
 
 DROP TABLE IF EXISTS chatroom;
