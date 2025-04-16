@@ -663,23 +663,26 @@ app.get('/chats', async (req, res) => {
   try {
     const username = req.session.user.username;
 
-    // Check if the user is a driver or a passenger in any chatroom
-    const chatrooms = await db.any(`
-      SELECT c.chatroomid AS chatroom, d.username AS driver_username, r.username AS passenger_username
+    // Fetch all chatrooms the user is part of, either as a participant or creator
+    const chatroomIDs = await db.any(`
+      SELECT c.chatroomid AS chatroom
       FROM chatroom c
-      JOIN driverInfo d ON c.driver = d.driverID
-      JOIN riderInfo r ON c.passenger = r.riderID
-      WHERE d.username = $1 OR r.username = $1;
-      `, [username]);
-      chatrooms.forEach(chatroom => {
-        if (chatroom.driver_username !== username) {
-          chatroom.username = chatroom.driver_username;
-        } else if (chatroom.passenger_username !== username) {
-          chatroom.username = chatroom.passenger_username;
-        }
+      JOIN chatroomParticipants cp ON c.chatroomid = cp.chatroomID
+      WHERE cp.username = $1;
+    `, [username]);
+
+    let chatrooms = [];
+
+    for (const chatroom of chatroomIDs) {
+      const persons = await db.any('SELECT username FROM chatroomParticipants WHERE chatroomID = $1 AND username != $2', [chatroom.chatroom, username]);
+      console.log('Persons in chatroom:', persons);
+      chatrooms.push({
+        chatroom: chatroom.chatroom,
+        usernames: persons.map(person => person.username)
       });
-      console.log(chatrooms, username)
-      res.render('pages/chats', { chatrooms });
+    }
+
+    res.render('pages/chats', { chatrooms: chatrooms });
   } catch (error) {
     console.error('Error fetching chatrooms:', error);
     res.render('pages/home');
