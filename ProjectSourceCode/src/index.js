@@ -910,3 +910,11 @@ app.post('/profile/edit', async (req, res) => {
     res.status(500).send('Update failed');
   }
 });
+
+app.get('/search', (req, res) => {
+  res.render('pages/searchUser');
+});
+
+// View another user's profile
+
+
