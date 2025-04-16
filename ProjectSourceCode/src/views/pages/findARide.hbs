@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome for stars -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <style>
     .trip-details p {
       margin-top: 0.5rem;
@@ -21,6 +23,12 @@
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
+    }
+    /* Rating stars */
+    .star {
+      font-size: 2rem;
+      cursor: pointer;
+      margin: 0 .2rem;
     }
   </style>
 </head>
@@ -124,14 +132,24 @@
                           <div class="badge bg-success mb-2">
                             &#10003; Signed up
                           </div>
+                          <!-- Edit Ride button carries availableSeats -->
                           <button class="btn btn-warning"
                             data-bs-toggle="modal"
                             data-bs-target="#signupModal"
                             data-driver="{{username}}"
                             data-destination="{{resort}}"
                             data-tripid="{{tripid}}"
+                            data-availableseats="{{remainingSeats}}"
                             data-signup='{{json userSignup}}'>
                             Edit Ride
+                          </button>
+                          <!-- Rate Driver button -->
+                          <button class="btn btn-outline-primary mt-2 rate-driver-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#ratingModal"
+                            data-tripid="{{tripid}}"
+                            data-date="{{date}}">
+                            Rate Driver
                           </button>
                         </div>
                       {{else}}
@@ -140,7 +158,8 @@
                           data-bs-target="#signupModal"
                           data-driver="{{username}}"
                           data-destination="{{resort}}"
-                          data-tripid="{{tripid}}">
+                          data-tripid="{{tripid}}"
+                          data-availableseats="{{remainingSeats}}">
                           Sign Up
                         </button>
                       {{/if}}
@@ -211,6 +230,9 @@
                 <div class="mb-3">
                   <label for="partySize" class="form-label">Number of People in Party</label>
                   <input type="number" name="partySize" id="partySize" class="form-control" min="1" value="1" required>
+                  <div class="form-text text-muted">
+                    (cannot exceed <span id="maxSeatsDisplay"></span> seats)
+                  </div>
                 </div>
                 <div class="mb-3">
                   <label for="specialRequirements" class="form-label">Special Requirements</label>
@@ -221,11 +243,34 @@
           </form>
         </div>
         <div class="modal-footer">
-          <!-- Cancel Ride button only appears in edit mode -->
           <button type="button" class="btn btn-danger" id="cancelRideButton" style="display: none;">Cancel Ride</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <!-- This button's text changes between "Sign Up" and "Save Changes" -->
           <button type="submit" form="signup-form" class="btn btn-primary">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rating Modal -->
+  <div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ratingModalLabel">Rate Driver</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div id="starContainer">
+            <i class="fa fa-star-o star" data-value="1"></i>
+            <i class="fa fa-star-o star" data-value="2"></i>
+            <i class="fa fa-star-o star" data-value="3"></i>
+            <i class="fa fa-star-o star" data-value="4"></i>
+            <i class="fa fa-star-o star" data-value="5"></i>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="submitRatingBtn" disabled>Submit</button>
         </div>
       </div>
     </div>
@@ -234,51 +279,123 @@
   <!-- Bootstrap JS Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // Grab modals
     var signupModal = document.getElementById('signupModal');
+    var ratingModal = document.getElementById('ratingModal');
+    var selectedRating = 0;
+
+    // Show signup modal: populate and set max seats
     signupModal.addEventListener('show.bs.modal', function (event) {
       var button = event.relatedTarget;
       var driver = button.getAttribute('data-driver');
       var destination = button.getAttribute('data-destination');
       var tripId = button.getAttribute('data-tripid');
       var signupDataStr = button.getAttribute('data-signup');
-      var modalTitle = signupModal.querySelector('.modal-title');
+      var availableSeats = Number(button.getAttribute('data-availableseats'));
 
-      // Reset the form each time the modal is shown.
+      // store for validation
+      signupModal.dataset.availableseats = availableSeats;
+      document.getElementById('maxSeatsDisplay').textContent = availableSeats;
+      document.getElementById('partySize').setAttribute('max', availableSeats);
+
+      // reset form
       var signupForm = document.getElementById('signup-form');
       signupForm.reset();
-
-      // Set the trip ID in the hidden field.
       document.getElementById('tripId').value = tripId;
-      
-      // If signupData is provided, we are in edit mode.
+
+      var modalTitle = signupModal.querySelector('.modal-title');
+      var primaryBtn = signupModal.querySelector('.btn-primary');
+      var cancelBtn = document.getElementById('cancelRideButton');
+
       if (signupDataStr) {
         var signupData = JSON.parse(signupDataStr);
         modalTitle.textContent = "Edit Ride for " + driver + "'s ride to " + destination;
+        // populate fields...
+        document.getElementById('signupId').value = signupData.signupid || '';
         document.getElementById('fullName').value = signupData.fullname || '';
         document.getElementById('emailAddress').value = signupData.emailaddress || '';
         document.getElementById('phoneNumber').value = signupData.phonenumber || '';
         document.getElementById('pickupLocation').value = signupData.pickuplocation || '';
         document.getElementById('partySize').value = signupData.partysize || '1';
         document.getElementById('specialRequirements').value = signupData.specialrequirements || '';
-        document.getElementById('signupId').value = signupData.signupid || '';
-
         signupForm.action = "/updateSignup";
-        document.getElementById('cancelRideButton').style.display = 'inline-block';
-        document.querySelector('#signupModal .btn-primary').textContent = "Save Changes";
+        cancelBtn.style.display = 'inline-block';
+        primaryBtn.textContent = "Save Changes";
       } else {
         modalTitle.textContent = "Sign Up for " + driver + "'s ride to " + destination;
         document.getElementById('signupId').value = "";
         signupForm.action = "/signup";
-        document.getElementById('cancelRideButton').style.display = 'none';
-        document.querySelector('#signupModal .btn-primary').textContent = "Sign Up";
+        cancelBtn.style.display = 'none';
+        primaryBtn.textContent = "Sign Up";
       }
     });
 
+    // Validate party size <= available seats
+    document.getElementById('signup-form').addEventListener('submit', function(e) {
+      var size = Number(document.getElementById('partySize').value);
+      var max = Number(signupModal.dataset.availableseats);
+      if (size > max) {
+        e.preventDefault();
+        alert('Party size cannot exceed available seats (' + max + ').');
+      }
+    });
+
+    // Cancel ride logic
     document.getElementById('cancelRideButton').addEventListener('click', function () {
       var signupId = document.getElementById('signupId').value;
       if (signupId && confirm("Are you sure you want to cancel your ride?")) {
         window.location.href = "/cancelSignup?signupId=" + signupId;
       }
+    });
+
+    // On page load: enable/disable Rate Driver buttons
+    document.querySelectorAll('.rate-driver-btn').forEach(function(btn) {
+      var tripDate = new Date(btn.getAttribute('data-date'));
+      var today = new Date();
+      if (tripDate <= today) {
+        btn.removeAttribute('disabled');
+        btn.classList.remove('disabled');
+      } else {
+        btn.setAttribute('disabled','');
+        btn.classList.add('disabled');
+      }
+    });
+
+    // Rating modal: reset & capture tripId
+    ratingModal.addEventListener('show.bs.modal', function(event) {
+      selectedRating = 0;
+      var button = event.relatedTarget;
+      ratingModal.dataset.tripid = button.getAttribute('data-tripid');
+      document.getElementById('submitRatingBtn').disabled = true;
+      ratingModal.querySelectorAll('.star').forEach(s => {
+        s.classList.remove('fa-star');
+        s.classList.add('fa-star-o');
+      });
+    });
+
+    // Star click handler
+    ratingModal.querySelectorAll('.star').forEach(function(star) {
+      star.addEventListener('click', function() {
+        selectedRating = Number(this.dataset.value);
+        ratingModal.querySelectorAll('.star').forEach(s => {
+          if (Number(s.dataset.value) <= selectedRating) {
+            s.classList.remove('fa-star-o');
+            s.classList.add('fa-star');
+          } else {
+            s.classList.remove('fa-star');
+            s.classList.add('fa-star-o');
+          }
+        });
+        document.getElementById('submitRatingBtn').disabled = false;
+      });
+    });
+
+    // Submit rating
+    document.getElementById('submitRatingBtn').addEventListener('click', function() {
+      var tripId = ratingModal.dataset.tripid;
+      var rating = selectedRating;
+      // Navigate to the GET endpoint; server will insert & redirect
+      window.location.href = `/submitRating?tripId=${tripId}&rating=${rating}`;
     });
   </script>
 </body>
