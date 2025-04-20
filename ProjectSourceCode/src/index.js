@@ -776,6 +776,49 @@ app.post('/chatroom/:id/message', async (req, res) => {
   }
 });
 
+app.post('/createChatroom', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const user1 = req.session.user.username;
+  const user2 = req.body.targetUsername;
+
+  try {
+    // Check if a chatroom already exists
+    const existingChats = await db.any(`
+      SELECT cp.chatroomid
+      FROM chatroomParticipants cp
+      GROUP BY cp.chatroomid
+      HAVING COUNT(*) = 2 AND BOOL_AND(cp.username = $1 OR cp.username = $2)
+    `, [user1, user2]);
+  
+  if (existingChats.length > 0) {
+    return res.redirect(`/chatroom/${existingChats[0].chatroomid}`);
+  }
+
+    if (existingChat) {
+      return res.redirect(`/chatroom/${existingChat.chatroomid}`);
+    }
+
+    // Create new chatroom
+    const newChat = await db.one(`
+      INSERT INTO chatroom DEFAULT VALUES RETURNING chatroomid
+    `);
+
+    await db.none(`
+      INSERT INTO chatroomParticipants (chatroomID, username)
+      VALUES ($1, $2), ($1, $3)
+    `, [newChat.chatroomid, user1, user2]);
+
+    res.redirect(`/chatroom/${newChat.chatroomid}`);
+  } 
+  catch (err) {
+    console.error('Error creating chatroom:', err);
+    res.status(500).send('Failed to create chatroom');
+  }
+});
+
 
 app.get('/profile', async (req, res) => {
   if (!req.session.user) {
@@ -912,15 +955,8 @@ app.post('/profile/edit', async (req, res) => {
     about_me,
     epic_pass,
     ikon_pass,
-    fav_mountains,
-    make,
-    model,
-    color,
-    carType,
-    drivetrain,
-    licensePlate
+    fav_mountains
   } = req.body;
-  
 
   try {
     await db.none(`
@@ -928,24 +964,6 @@ app.post('/profile/edit', async (req, res) => {
       SET email = $1, about_me = $2, epic_pass = $3, ikon_pass = $4, fav_mountains = $5
       WHERE username = $6
     `, [email, about_me, epic_pass === 'on', ikon_pass === 'on', fav_mountains, username]);
-
-    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
-    if (driver) {
-      const existingCar = await db.oneOrNone('SELECT * FROM car WHERE ownerID = $1', [driver.driverid]);
-
-      if (existingCar) {
-        await db.none(`
-          UPDATE car
-          SET make = $1, model = $2, color = $3, carType = $4, drivetrain = $5, licensePlate = $6
-          WHERE ownerID = $7
-        `, [make, model, color, carType, drivetrain, licensePlate, driver.driverid]);
-      } else {
-        await db.none(`
-          INSERT INTO car (licensePlate, ownerID, make, model, color, carType, drivetrain)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-        `, [licensePlate, driver.driverid, make, model, color, carType, drivetrain]);
-      }
-    }
 
     res.redirect('/profile');
   } catch (err) {
