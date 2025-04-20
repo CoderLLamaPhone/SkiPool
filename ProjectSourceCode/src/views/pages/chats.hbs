@@ -3,7 +3,11 @@
     <div class="list-group">
         {{#each chatrooms}}
             <a href="/chatroom/{{this.chatroom}}" class="list-group-item list-group-item-action">
-                <h5 class="mb-1">Open chat with {{this.username}}</h5>
+            <h5 class="mb-1">Open chat with 
+                {{#each this.usernames}}
+                    {{this}}{{#unless @last}}, {{/unless}}
+                {{/each}}
+            </h5>
             </a>
         {{/each}}
     </div>

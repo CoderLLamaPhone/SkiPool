@@ -114,5 +114,33 @@
     </label>
   {{/if}}
 
+    {{#if car}}
+    <h3>Car Info</h3>
+
+    <label>Make:
+      <input type="text" name="make" value="{{car.make}}">
+    </label>
+
+    <label>Model:
+      <input type="text" name="model" value="{{car.model}}">
+    </label>
+
+    <label>Color:
+      <input type="text" name="color" value="{{car.color}}">
+    </label>
+
+    <label>Type:
+      <input type="text" name="carType" value="{{car.cartype}}">
+    </label>
+
+    <label>Drivetrain:
+      <input type="text" name="drivetrain" value="{{car.drivetrain}}">
+    </label>
+
+    <label>License Plate:
+      <input type="text" name="licensePlate" value="{{car.licenseplate}}">
+    </label>
+  {{/if}}
+
   <button type="submit">Save Changes</button>
 </form>
