@@ -197,8 +197,6 @@ app.get('/rider', async (req, res) => {
       );
       
 
-      console.log(username, signUpTrips, userSignup, 'hiasdf')
-
       return {
         ...trip,
         date: trip.date ? new Date(trip.date).toISOString().split('T')[0] : '',
@@ -255,15 +253,15 @@ app.get('/rider', async (req, res) => {
     }
     
     // Optionally filter trips based on query parameters.
-    const { resort, pass, time, priceRange, availableSeats } = req.query;
+    const { resort, pass, date, priceRange, availableSeats } = req.query;
     if (resort) {
       trips = trips.filter(trip => trip.resort === resort);
     }
     if (pass) {
       trips = trips.filter(trip => trip.pass === pass);
     }
-    if (time) {
-      trips = trips.filter(trip => trip.EST_outbound === time);
+    if (date) {
+      trips = trips.filter(trip => trip.date === date);
     }
     if (priceRange) {
       trips = trips.filter(trip => trip.cost <= Number(priceRange));
