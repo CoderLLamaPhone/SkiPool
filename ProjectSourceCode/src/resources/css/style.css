@@ -29,7 +29,8 @@ body {
   .login-container {
     display: flex;
     flex-direction: column;
-    max-width: 300px;
+    max-width: 100%; /* Changed from max-width: 300px to max-width: 100% for fluid layout */
+    width: 100%; /* Changed from max-width: 300px to width: 100% */
     max-height: 100vh;
     justify-content: space-between;
     align-items: center;
@@ -51,7 +52,7 @@ body {
     display: flex;
     flex-direction: column;
     margin: 0 auto;
-    max-width: 300px;
+    width: 100%;  /* Changed from max-width: 300px to width: 100% */
     margin-bottom: 30px;
   }
   .login-form label {
@@ -90,6 +91,7 @@ body {
   }
   .profile-container {
     display: flex;
+    flex-wrap: wrap; /* Added to allow elements to wrap on small screens */
     align-items: flex-start;
   }
   .profile-image {
@@ -134,4 +136,39 @@ body {
     margin-bottom: 10px;
     border-radius: 4px;
   }
+
+/* ----------- Media Queries for Responsiveness ----------- */
+@media (max-width: 768px) {  /* styles here apply only when the screen width is 768px or smaller */
+  .login-container {
+      width: 90%; /* Adjusted width for smaller screens */
+  }
+
+  .ski-logo {
+      width: 150px;  /* Adjust logo size for smaller screens */
+  }
+
+  .profile-container {
+      flex-direction: column;  /* Changed to column layout for smaller screens */
+      align-items: center;
+  }
+
+  .profile-image {
+      margin-right: 0;
+      margin-bottom: 20px;
+  }
+
+  .profile-image img {
+      width: 120px;  /* Adjusted image size */
+      height: 120px;
+  }
+
+  .trips-section .card {
+      min-width: 100%;  /* Made trip cards take full width on smaller screens */
+  }
+
+  .c-navbar {
+      flex-direction: column;  /* Adjusted navbar for smaller screens */
+      align-items: center;
+  }
+}
 
