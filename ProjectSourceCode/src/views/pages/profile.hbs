@@ -1,15 +1,27 @@
+<div class="profile-page-container">
 <!-- Profile Card -->
-<div class="card">
+<div class="card mb-3" style="padding: 20px; background-color: #faf8fa; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
   <div class="profile-container" style="display: flex; align-items: flex-start; justify-content: space-between; position: relative;">
 
 
     <div class="profile-details" style="flex-grow: 1; padding-left: 20px; position: relative;">
-      <div style="position: absolute; top: 0; right: 0;">
+      <h1 style="margin-top: 0;">{{user.username}}</h1>
+      <p><strong>Email:</strong> {{user.email}}</p>
+      <p><strong>About Me:</strong> {{user.about_me}}</p>
+    </div>
+    <div class="ski-pref card ml-3">
+      <h3>Ski Preferences</h3>
+      <p><strong>Ikon Pass:</strong> {{#if user.ikon_pass}}Yes{{else}}No{{/if}}</p>
+      <p><strong>Epic Pass:</strong> {{#if user.epic_pass}}Yes{{else}}No{{/if}}</p>
+      <p><strong>Favorite Mountains:</strong> {{user.fav_mountains}}</p>
+    </div>
+    <div style="position: absolute; top: 0; right: 0;">
         <a href="/profile/edit">
           <button style="
             padding: 6px 12px;
+            font-family: 'Goldman', sans-serif;
             font-size: 14px;
-            background-color: #3c78d8;
+            background-color: #4181b9;
             color: white;
             border: none;
             border-radius: 4px;
@@ -19,26 +31,17 @@
           </button>
         </a>
       </div>
-
-      <h1 style="margin-top: 0;">{{user.username}}</h1>
-      <p><strong>Email:</strong> {{user.email}}</p>
-      <p><strong>About Me:</strong> {{user.about_me}}</p>
-      <p><strong>Ikon Pass:</strong> {{#if user.ikon_pass}}Yes{{else}}No{{/if}}</p>
-      <p><strong>Epic Pass:</strong> {{#if user.epic_pass}}Yes{{else}}No{{/if}}</p>
-      <p><strong>Favorite Mountains:</strong> {{user.fav_mountains}}</p>
-    </div>
-
   </div>
 </div>
 
 <!-- Driver Info Card -->
 {{#if driverInfo}}
-  <div class="card">
+  <div class="driver-info-container card">
     {{#if cars.length}}
       <h3>Car Details</h3>
       <ul class="list-group">
       {{#each cars}}
-      <li class="list-group-item" style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+      <li class="list-group-item" style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; border: 1px solid #4181b9; padding: 10px; border-radius: 5px; background-color: #f8f9fa;">
         <div style="flex: 1; min-width: 150px;">
           <p><strong>Make:</strong> {{this.make}}</p>
           <p><strong>Model:</strong> {{this.model}}</p>
@@ -55,7 +58,8 @@
             <button type="submit" style="
               padding: 6px 12px;
               font-size: 14px;
-              background-color: #d9534f;
+              font-family: 'Goldman', sans-serif;
+              background-color: #f38212;
               color: white;
               border: none;
               border-radius: 4px;
@@ -70,7 +74,7 @@
     {{else}}
       <p class="text-muted">No cars registered.</p>
     {{/if}}
-    <div class="mt-4"></div>
+    <div class="mt-4">
       <h3>Add a Car</h3>
       <form action="/profile/add-car" method="POST" class="needs-validation" novalidate>
         <div class="row">
@@ -107,15 +111,37 @@
             <div class="invalid-feedback">Please provide the license plate.</div>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary">Add Car</button>
+        <button type="submit" style="
+              padding: 6px 12px;
+              font-size: 14px;
+              font-family: 'Goldman', sans-serif;
+              background-color: #4181b9;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+            ">Add Car</button>
       </form>
+    </div>
+  </div>
+{{/if}}
+
+<!-- Rating Card -->
+{{#if avgRating}}
+  <div class="card rating-container">
+    <h3>Overall Rating</h3>
+    <div class="rating-stars">
+      {{#each (stars avgRating)}}
+        {{#if this}}&#9733;{{else}}&#9734;{{/if}}
+      {{/each}}
+      <span>({{avgRating}} out of 5)</span>
     </div>
   </div>
 {{/if}}
 
 <!-- Recent Reviews Card -->
 {{#if reviews.length}}
-  <div class="card">
+  <div class="card review-container">
     <h3>Recent Reviews</h3>
     <ul class="review-list">
       {{#each reviews}}
@@ -132,22 +158,9 @@
     </ul>
   </div>
 {{else}}
-  <div class="card">
+  <div class="card review-container">
     <h3>Recent Reviews</h3>
     <p>No reviews yet.</p>
-  </div>
-{{/if}}
-
-<!-- Rating Card -->
-{{#if avgRating}}
-  <div class="card">
-    <h3>Overall Rating</h3>
-    <div class="rating-stars">
-      {{#each (stars avgRating)}}
-        {{#if this}}&#9733;{{else}}&#9734;{{/if}}
-      {{/each}}
-      <span>({{avgRating}} out of 5)</span>
-    </div>
   </div>
 {{/if}}
 
@@ -157,7 +170,7 @@
   <div class="card">
     <h3>Past Trips</h3>
     {{#each pastTrips}}
-      <div class="trip">
+      <div class="trip" style="border: 1px solid #4181b9; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
         <p><strong>{{resort}}, {{location}}</strong></p>
         <p>Date: {{formatDate date}}</p>
       </div>
@@ -170,7 +183,7 @@
   <div class="card">
     <h3>Upcoming Trips</h3>
     {{#each upcomingTrips}}
-      <div class="trip">
+      <div class="trip" style="border: 1px solid #4181b9; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
         <p><strong>{{resort}}, {{location}}</strong></p>
         <p>Date: {{formatDate date}}</p>
       </div>
@@ -178,4 +191,5 @@
       <p>No upcoming trips.</p>
     {{/each}}
   </div>
+</div>
 </div>
