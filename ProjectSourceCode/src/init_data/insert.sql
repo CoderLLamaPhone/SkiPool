@@ -8,6 +8,7 @@ INSERT INTO "user" (username, password, email) VALUES
 INSERT INTO driverInfo (username, AVG_Rating) VALUES
 ('John Doe', 4),
 ('Jane Smith', 4);
+('Mike Brown', 4);
 
 -- Insert fake entries into the driverRatings table
 INSERT INTO driverRatings (driverID, stars, message, reviewedBy, tripID, date) VALUES
@@ -23,6 +24,7 @@ INSERT INTO car (licensePlate, ownerID, make, model, color, carType, drivetrain)
 INSERT INTO riderInfo (username, AVG_Rating) VALUES
 ('Mike Brown', 5),
 ('Jane Smith', 4);
+('John Doe', 4);
 
 
 -- Insert fake entries into the riderRatings table
