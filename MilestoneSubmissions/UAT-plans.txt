@@ -26,11 +26,11 @@ Colin Wallace      Debug and fix issues based on test reports
 
 Actual Test Results:
 Username          Password            Actual Outcome
----------------------------------------------------------------
-test_username     test_password       [To be filled]
-test_username     incorrect           [To be filled]
-incorrect         test_password       [To be filled]
-does_not_exist    does_not_exist      [To be filled]
+----------------------------------------------------------------------------------
+test_username     test_password       Successful login
+test_username     incorrect           Login fails
+incorrect         test_password       Login fails and redirects to register page
+does_not_exist    does_not_exist      Login fails and redirects to register page
 
 
 2) Find a Ride Filter
