@@ -319,8 +319,6 @@ app.get('/driver', async (req, res) => {
       [driver.driverid]
     );
 
-    console.log('Trips for user:', trips);
-
     res.render('pages/driverInfo', { trips: trips || [] });
   } 
   catch(err){
@@ -349,19 +347,15 @@ app.post('/driver', async (req, res) => {
     info
   } = req.body;
 
-  console.log("BODY:", req.body);
-
   try{
     const driverQuery = 'SELECT driverID FROM driverInfo WHERE username = $1';
     const driver = await db.oneOrNone(driverQuery, [username]);
-    console.log("Driver", driver);
 
     if (!driver) {
       return res.status(400).send('Driver info not found for this user.');
     }
 
     const driverID = driver.driverid;
-    console.log("DriverID from session:", driverID);
 
     const insertTripQuery = `
     INSERT INTO trips (
@@ -388,7 +382,6 @@ app.post('/driver', async (req, res) => {
     
     const newTrip = await db.one(insertTripQuery, tripData);
 
-    console.log('New trip created:', newTrip);
     res.redirect('/driver');
   }
   catch(error){
@@ -425,7 +418,6 @@ app.post('/register', async (req, res) => {
     const insertData = await db.one(query, [req.body.username, hash]);
     const driverData = await db.one(query2, [req.body.username]);
     const riderData = await db.one(query3, [req.body.username]);
-    console.log('Inserted values:', insertData);
     res.redirect('/login');
   } catch (error) {
     console.error('Error during registration:', error);
@@ -649,7 +641,6 @@ app.get('/cancelSignup', async (req, res) => {
 
 // Logout
 app.get('/logout', (req, res) => {
-  console.log('Logout');
   req.session.destroy(function(err) {
   // send message to the client
     res.render('pages/logout', {message: 'You have been logged out successfully'});
@@ -704,7 +695,7 @@ app.get('/chatroom/:id', async (req, res) => {
        FROM chatroom c
        JOIN chatroomParticipants cp ON c.chatroomid = cp.chatroomID
        WHERE c.chatroomid = $1 AND cp.username = $2`,
-      [chatroomId, req.session.user.username]
+      [chatroomId, username]
     );
 
     if (!chatroom) {
@@ -783,21 +774,17 @@ app.post('/createChatroom', async (req, res) => {
   const user2 = req.body.targetUsername;
 
   try {
-    // Check if a chatroom already exists
-    const existingChats = await db.any(`
-      SELECT cp.chatroomid
-      FROM chatroomParticipants cp
-      GROUP BY cp.chatroomid
-      HAVING COUNT(*) = 2 AND BOOL_AND(cp.username = $1 OR cp.username = $2)
-    `, [user1, user2]);
+  // Check if a chatroom already exists
+  const existingChats = await db.any(`
+    SELECT cp.chatroomid
+    FROM chatroomParticipants cp
+    GROUP BY cp.chatroomid
+    HAVING COUNT(*) = 2 AND BOOL_AND(cp.username = $1 OR cp.username = $2)
+  `, [user1, user2]);
   
   if (existingChats.length > 0) {
     return res.redirect(`/chatroom/${existingChats[0].chatroomid}`);
   }
-
-    if (existingChat) {
-      return res.redirect(`/chatroom/${existingChat.chatroomid}`);
-    }
 
     // Create new chatroom
     const newChat = await db.one(`
@@ -828,23 +815,25 @@ app.get('/profile', async (req, res) => {
 
     const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [req.session.user.username]);
 
-    const driverID = driver.driverid;
-    const reviews = await db.any(`
-      SELECT dr.stars, dr.message, dr.reviewedBy, dr.date
-      FROM driverRatings dr
-      WHERE dr.driverID = $1
-      ORDER BY dr.date DESC
-      LIMIT 3
-    `, [driverID]);
-
     let trips = [];
     let pastTrips = [];
     let upcomingTrips = [];
     let avgRating = null;
     let car = null;
     const today = new Date();
+    let reviews = [];
 
+  
     if (driver) {
+      const driverID = driver.driverid;
+      const reviews = await db.any(`
+        SELECT dr.stars, dr.message, dr.reviewedBy, dr.date
+        FROM driverRatings dr
+        WHERE dr.driverID = $1
+        ORDER BY dr.date DESC
+        LIMIT 3
+      `, [driverID]);
+
       avgRating = driver.avg_rating;
 
       cars = await db.any('SELECT * FROM car WHERE ownerID = $1', [driverID]);
@@ -852,12 +841,22 @@ app.get('/profile', async (req, res) => {
         SELECT t.date, t.resort, r.location
         FROM trips t
         JOIN resort r ON t.resort = r.name
-        WHERE t.driverid = $1
+        WHERE t.driverID = $1
         ORDER BY t.date DESC
       `, [driverID]);
 
       pastTrips = trips.filter(trip => new Date(trip.date) < today);
       upcomingTrips = trips.filter(trip => new Date(trip.date) >= today);
+    } else {
+      const newDriver = await db.one(
+      'INSERT INTO driverInfo (username) VALUES ($1) RETURNING *;',
+      [req.session.user.username]
+      );
+      avgRating = newDriver.avg_rating;
+      cars = [];
+      trips = [];
+      pastTrips = [];
+      upcomingTrips = [];
     }
 
     res.render('pages/profile', {
@@ -1011,7 +1010,7 @@ app.get('/profile/:username', async (req, res) => {
         SELECT t.date, t.resort, r.location
         FROM trips t
         JOIN resort r ON t.resort = r.name
-        WHERE t.driverid = $1
+        WHERE t.driverID = $1
         ORDER BY t.date DESC
       `, [driver.driverid]);
     }
@@ -1052,7 +1051,7 @@ app.get('/submitRating', async (req, res) => {
  
   try {
     // 3) Lookup driverID for this trip
-    const { driverid } = await db.one(
+    const { driverID } = await db.one(
       `SELECT driverID
          FROM trips
         WHERE tripID = $1`,
@@ -1065,7 +1064,7 @@ app.get('/submitRating', async (req, res) => {
       `INSERT INTO driverRatings
          (driverID, stars, message, reviewedBy, tripID, date)
        VALUES ($1, $2, $3, $4, $5, CURRENT_DATE)`,
-      [driverid, Number(rating), '', reviewedBy, tripId]
+      [driverID, Number(rating), '', reviewedBy, tripId]
     );
  
  
