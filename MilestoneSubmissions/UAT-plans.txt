@@ -61,11 +61,11 @@ Jeremy Huang       Debug and fix issues based on test reports
 Actual Test Results:
 Filter                                      Actual Outcome
 ------------------------------------------------------------
-Set ski resort to Aspen Snowmass            [To be filled]
-Set pass type to Ikon                       [To be filled]
-Set departure date to 4/30/2025             [To be filled]
-Set maximum price to $50                    [To be filled]
-Set minimum available seats to 3            [To be filled]
+Set ski resort to Aspen Snowmass            Only rides that go to Aspen Snowmass appear
+Set pass type to Ikon                       Only rides that go to ski resorts that are on the Ikon pass are shown
+Set departure date to 4/30/2025             Only rides that depart on 4/30/2025 show up
+Set maximum price to $50                    Only rides that cost $50 or less appear
+Set minimum available seats to 3            Only rides that have at least 3 seats available are shown
 
 
 3) Adding a Drive
