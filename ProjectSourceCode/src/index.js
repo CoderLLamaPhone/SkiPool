@@ -1051,12 +1051,14 @@ app.get('/submitRating', async (req, res) => {
  
   try {
     // 3) Lookup driverID for this trip
-    const { driverID } = await db.one(
+    const result = await db.one(
       `SELECT driverID
          FROM trips
         WHERE tripID = $1`,
       [tripId]
     );
+
+    const driverID = result.driverID ?? 1;
  
  
     // 4) Insert into driverRatings
