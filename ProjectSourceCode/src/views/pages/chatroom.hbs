@@ -1,8 +1,8 @@
-<div class="container mt-4">
+<div class="chat-page-container container mt-4">
     <div class="row">
         <div class="col-md-4">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header users-header">
                     <h5>Users</h5>
                 </div>
                 <ul class="list-group list-group-flush">
@@ -11,18 +11,19 @@
                     {{/each}}
                 </ul>
             </div>
+            <a href="/chats" class="btn back-btn">Back to Chats</a>
         </div>
         <div class="col-md-8">
             <div class="card" id="chatroom-card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header chat-header">
                     <h5>Chatroom</h5>
                 </div>
                 <div class="card-body chat-box" style="height: 60vh; overflow-y: auto;" id="chat-box">
                     {{#if messages.length}}
                     {{#each messages}}
-                    <div class="mb-2">
-                        <strong>{{this.username}}:</strong> {{this.message}} <br>
-                        <small class="text-muted">{{this.date}} {{this.time}}</small>
+                    <div class="message mb-2">
+                        <p><strong>{{this.username}}:</strong> {{this.message}} <br></p>
+                        <small class="text-muted">{{formatDate this.date}} {{this.time}}</small>
                     </div>
                     {{/each}}
                     {{else}}
@@ -36,7 +37,7 @@
                     <form action="/chatroom/{{chatroomId}}/message" method="POST">
                         <div class="input-group">
                             <input type="text" id="message" name="message" class="form-control" placeholder="Type your message..." required>
-                            <button type="submit" class="btn btn-primary">Send</button>
+                            <button type="submit" class="btn send-message-btn">Send</button>
                         </div>
                     </form>
                     <script>

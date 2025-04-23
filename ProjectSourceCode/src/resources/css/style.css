@@ -1,21 +1,31 @@
 
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background: #f2f2f2;
+  font-family: "Markazi Text", serif;
+  margin: 20px;
+  background: #f2f2f2;
   }
-
+/* -----------NavBar Styles---------- */
 .nav-logo {
-    width: 90px;
+    width: 120px;
     height: auto;
     margin-left: 20px;
   }
-.c-navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #1e3d58;
-    padding: 10px 20px;
+.navbar {
+    font-family: "Goldman", sans-serif;
+    font-size: 1rem;
+  }
+
+  .nav-item {
+    text-decoration: none;
+    border-radius: 10px;
+    transition: background-color 0.4s ease;
+  }
+  .nav-item.active {
+    background-color: #f39c12;
+    color: white;
+  }
+  .nav-item:hover {
+    background-color: #f39c12;
     color: white;
   }
 
@@ -63,7 +73,7 @@ body {
   .login-form input[type="password"] {
     padding: 10px;
     margin-bottom: 0px;
-    border: 1px solid #1916d7;
+    border: 1px solid #ddd;
     border-radius: 4px;
     width: 100%;
   }
@@ -81,6 +91,17 @@ body {
   }
 
 /* ---------Profile Page CSS--------- */
+  .profile-page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content: center;
+    padding: 20px;
+    background: #1e3d58;
+  }
+  .profile-page-container p {
+    font-size: 21px;
+  }
   .card {
     background: #fff;
     border: 1px solid #ddd;
@@ -88,11 +109,23 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     margin-bottom: 20px;
     padding: 20px;
+    font-family: "Markazi Text", serif;
   }
   .profile-container {
     display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     flex-wrap: wrap; /* Added to allow elements to wrap on small screens */
     align-items: flex-start;
+    font-family: "Markazi Text", serif;
+  }
+  .profile-container h3, h4 {
+    margin: 0;
+    font-family: "Goldman", sans-serif;
+    font-size: 24px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
   }
   .profile-image {
     margin-right: 20px;
@@ -108,6 +141,8 @@ body {
   }
   .profile-details h1 {
     margin: 0 0 10px;
+    font-family: "Goldman", sans-serif;
+    font-size: 40px;
   }
   .profile-details p {
     margin: 5px 0;
@@ -115,6 +150,62 @@ body {
   .rating-stars {
     font-size: 24px;
     color: gold;
+  }
+  .ski-pref {
+    width: 30%;
+    margin-left: 10%;
+    margin-right: 10%;
+  }
+  .driver-info-container {
+    margin-bottom: 20px;
+  }
+  .driver-info-container h3 {
+    margin: 0;
+    font-family: "Goldman", sans-serif;
+    font-size: 24px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+  }
+  .review-container {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content: center;
+    padding: 20px;
+  }
+  .review-container h3 {
+    margin: 0;
+    font-family: "Goldman", sans-serif;
+    font-size: 24px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+  }
+  .review-container ul {
+    list-style: none;
+    padding: 0;
+  }
+  .review-container li {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .rating-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .rating-container h3 {
+    margin: 0;
+    font-family: "Goldman", sans-serif;
+    font-size: 24px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
   }
   .trips-section {
     display: flex;
@@ -127,6 +218,8 @@ body {
   }
   .trips-section h3 {
     margin: 0 0 10px;
+    font-family: "Goldman", sans-serif;
+    font-size: 24px;
     border-bottom: 1px solid #ddd;
     padding-bottom: 5px;
   }
@@ -139,6 +232,12 @@ body {
 
 /* ----------- Media Queries for Responsiveness ----------- */
 @media (max-width: 768px) {  /* styles here apply only when the screen width is 768px or smaller */
+  .ski-pref {
+      width: 100%; /* Adjusted width for smaller screens */
+      margin-left: 0%;
+      margin-right: 0%;
+      margin-top: 20px;
+  }
   .login-container {
       width: 90%; /* Adjusted width for smaller screens */
   }
@@ -165,10 +264,252 @@ body {
   .trips-section .card {
       min-width: 100%;  /* Made trip cards take full width on smaller screens */
   }
-
-  .c-navbar {
-      flex-direction: column;  /* Adjusted navbar for smaller screens */
+  .navbar {
+      margin-top: 0px;
+      margin-bottom: 0px;
+      justify-content: space-between;
       align-items: center;
   }
+  .nav-logo {
+      width: 60px;
+      margin: 0px;
+  }
+  .nav-item {
+      font-size: 0.7rem;
+  }
+  /* #navbarContent {
+      display: flex;
+      flex-direction: column;
+      align-items: left;
+      width: 100%;
+  } */
 }
 
+  /* --------Find A Ride CSS---------- */
+  .find-ride-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #1e3d58;
+  }
+  .find-ride-body h2 {
+    font-family: "Goldman", sans-serif;
+    font-size: 24px;
+    color: #1e3d58;
+  }
+  input[type="radio"] {
+    margin-right: 12px;
+    background-color:white;
+  }
+  input[type="radio"]:checked {
+    background-color: #f39c12;
+  }
+
+  /* -------------Driver Page CSS------------- */
+.create-drive-btn {
+  background-color: #3498db;
+  color: white;
+  padding: 10px 20px;
+  width: 200px;
+  border: white solid 1px;
+  border-radius: 5px;
+  font-family: "Goldman", sans-serif;
+  font-size: 16px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+}
+.create-drive-btn:hover {
+  background-color: #2980b9;
+  color: white;
+}
+.create-drive-btn2 {
+  background-color: #3498db;
+  color: white;
+  padding: 10px 20px;
+  width: 200px;
+  border: white solid 1px;
+  border-radius: 5px;
+  font-family: "Goldman", sans-serif;
+  font-size: 16px;
+}
+.create-drive-btn2:hover {
+  background-color: #2980b9;
+  color: white;
+}
+.close-drive-btn {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  width: 120px;
+  border: white solid 1px;
+  border-radius: 5px;
+  font-family: "Goldman", sans-serif;
+  font-size: 16px;
+}
+.close-drive-btn:hover {
+  background-color: darkslategray;
+  color: white;
+}
+.create-drive-container {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  padding: 20px;
+  background: #1e3d58;
+  border-radius: 10px;
+  font-family: "Markazi Text", serif;
+}
+.create-drive-container h2 {
+  font-family: "Goldman", sans-serif;
+  font-size: 24px;
+  color: #1e3d58;
+}
+.trip-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  padding: 20px;
+  font-family: "Markazi Text", serif;
+  font-size: 18px;
+}
+.delete-trip-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-family: "Goldman", sans-serif;
+  font-size: 14px;
+}
+.delete-trip-btn:hover {
+  background-color: #c0392b;
+  color: white;
+}
+/* ----------Chatroom CSS---------- */
+.chathub-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  padding: 20px;
+  background: #1e3d58;
+  border-radius: 10px;
+  font-family: "Markazi Text", serif;
+}
+.chathub-container h1 {
+  font-family: "Goldman", sans-serif;
+  font-size: 36px;
+  color: white;
+}
+
+.chat-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  padding: 20px;
+  background: #1e3d58;
+  border-radius: 10px;
+  font-family: "Markazi Text", serif;
+}
+.chat-page-container h5 {
+  font-family: "Goldman", sans-serif;
+  font-size: 20px;
+  color: white;
+}
+.users-header {
+  background-color:#f39c12;
+}
+.chat-header {
+  background-color: #2980b9;
+}
+.send-message-btn {
+  background-color: #3498db;
+  color: white;
+  padding: 10px 20px;
+  width: 120px;
+  border: white solid 1px;
+  border-radius: 5px;
+  font-family: "Goldman", sans-serif;
+  font-size: 16px;
+}
+.send-message-btn:hover {
+  background-color: #2980b9;
+  color: white;
+}
+.message {
+  background-color: #f1f1f1;
+  padding: 10px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  max-width: 80%;
+  word-wrap: break-word;
+}
+.message p {
+  margin-bottom: -5px;
+}
+.back-btn {
+  background-color: #f39c12;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-family: "Goldman", sans-serif;
+  font-size: 12px;
+}
+.back-btn:hover {
+  background-color: #e74c3c;
+  color: white;
+}
+
+/* ----------Search Page CSS---------- */
+.search-user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  padding: 20px;
+  background: #1e3d58;
+  border-radius: 10px;
+  font-family: "Markazi Text", serif;
+}
+.search-user-container h2 {
+  font-family: "Goldman", sans-serif;
+  font-size: 30px;
+  color: #ffffff;
+}
+.search-btn {
+  background-color: #3498db;
+  color: white;
+  padding: 10px 20px;
+  width: 120px;
+  border: white solid 1px;
+  border-radius: 5px;
+  font-family: "Goldman", sans-serif;
+  font-size: 14px;
+  margin-top: 20px;
+}
+.search-btn:hover {
+  background-color: #2980b9;
+  color: white;
+}
+
+/* ----------View Profile CSS---------- */
+.message-user-btn {
+  background-color: #f39c12;
+  color: white;
+  padding: 10px 20px;
+  border: white solid 1px;
+  border-radius: 5px;
+  font-family: "Goldman", sans-serif;
+  font-size: 14px;
+}
+.message-user-btn:hover {
+  background-color: #cf8207;
+  color: white;
+}

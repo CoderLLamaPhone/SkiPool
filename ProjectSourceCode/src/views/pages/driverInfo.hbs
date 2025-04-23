@@ -1,8 +1,9 @@
-<div class="container mt-4">
+{{!-- Create Drive Page --}}
+<div class="create-drive-container container mt-4">
     <div class="row">
         <!-- Create Drive Button -->
         <div class="col-md-3">
-            <button class="btn btn-primary w-75" data-bs-toggle="modal" data-bs-target="#createDriveModal">
+            <button class="create-drive-btn" data-bs-toggle="modal" data-bs-target="#createDriveModal">
                 Create Drive
             </button>
         </div>
@@ -16,20 +17,20 @@
                 <div class="card-body">
                     {{#if trips.length}}
                         {{#each trips}}
-                            <div class="card mb-3">
+                            <div class="trip-card card mb-3">
                                 <div class="card-body">
-                                    <h5 class="card-title">{{pickuplocation}} → {{resort}}</h5>
+                                    <h4 class="card-title">{{pickuplocation}} → {{resort}}</h4>
                                     <p class="card-text">
-                                        <strong>Departure Date:</strong> {{departuredate}} <br>
-                                        <strong>Price:</strong> ${{price}} <br>
-                                        <strong>Available Seats:</strong> {{seats}} <br>
+                                        <strong>Departure Date:</strong> {{formatDate departuredate}} <br>
                                         <strong>Estimated Departure Time:</strong> {{departuretime}} <br>
                                         <strong>Estimated Return Time:</strong> {{returntime}} <br>
+                                        <strong>Price:</strong> ${{price}} <br>
+                                        <strong>Available Seats:</strong> {{seats}} <br>
                                         <strong>Car:</strong> {{car}} <br>
                                         <strong>Additional Info:</strong> {{info}} <br>
                                     </p>
                                     <form action="/trips/delete/{{tripid}}" method="POST" class="text-end">
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button type="submit" class="delete-trip-btn">Delete</button>
                                     </form>
                                 </div>
                             </div>
@@ -115,8 +116,8 @@
 
                     <!-- Modal Footer -->
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Create Drive</button>
+                        <button type="button" class="close-drive-btn" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="create-drive-btn2">Create Drive</button>
                     </div>
                 </form>
             </div>

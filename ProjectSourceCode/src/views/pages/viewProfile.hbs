@@ -1,29 +1,29 @@
 <!-- Profile Card -->
-<div class="card">
+<div class="profile-page-container">
+<div class="card mb-3" style="padding: 20px; background-color: #faf8fa; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
   <div class="profile-container" style="display: flex; align-items: flex-start; justify-content: space-between; position: relative;">
-  {{#if showFriendActions}}
-  <form action="/createChatroom" method="POST">
-    <input type="hidden" name="targetUsername" value="{{user.username}}">
-    <button type="submit" class="btn btn-outline-primary mt-2">Message {{user.username}}</button>
-  </form>
-  {{/if}}
-
     <div class="profile-details" style="flex-grow: 1; padding-left: 20px; position: relative;">
-
       <h1 style="margin-top: 0;">{{user.username}}</h1>
       <p><strong>Email:</strong> {{user.email}}</p>
       <p><strong>About Me:</strong> {{user.about_me}}</p>
+    </div>
+    <div class="ski-pref card ml-3">
       <p><strong>Ikon Pass:</strong> {{#if user.ikon_pass}}Yes{{else}}No{{/if}}</p>
       <p><strong>Epic Pass:</strong> {{#if user.epic_pass}}Yes{{else}}No{{/if}}</p>
       <p><strong>Favorite Mountains:</strong> {{user.fav_mountains}}</p>
     </div>
-
+    {{#if showFriendActions}}
+      <form action="/createChatroom" method="POST">
+        <input type="hidden" name="targetUsername" value="{{user.username}}">
+        <button type="submit" class="btn message-user-btn">Message {{user.username}}</button>
+      </form>
+    {{/if}}
+    </div>
   </div>
-</div>
 
 <!-- Driver Info Card -->
 {{#if driverInfo}}
-  <div class="card">
+  <div class="driver-info-container card">
     {{#if car}}
       <h3>Car Details</h3>
       <ul>
@@ -40,9 +40,22 @@
   </div>
 {{/if}}
 
+<!-- Rating Card -->
+{{#if avgRating}}
+  <div class="card rating-container">
+    <h3>Overall Rating</h3>
+    <div class="rating-stars">
+      {{#each (stars avgRating)}}
+        {{#if this}}&#9733;{{else}}&#9734;{{/if}}
+      {{/each}}
+      <span>({{avgRating}} out of 5)</span>
+    </div>
+  </div>
+{{/if}}
+
 <!-- Recent Reviews Card -->
 {{#if reviews.length}}
-  <div class="card">
+  <div class="card review-container">
     <h3>Recent Reviews</h3>
     <ul class="review-list">
       {{#each reviews}}
@@ -59,22 +72,9 @@
     </ul>
   </div>
 {{else}}
-  <div class="card">
+  <div class="card review-container">
     <h3>Recent Reviews</h3>
     <p>No reviews yet.</p>
-  </div>
-{{/if}}
-
-<!-- Rating Card -->
-{{#if avgRating}}
-  <div class="card">
-    <h3>Overall Rating</h3>
-    <div class="rating-stars">
-      {{#each (stars avgRating)}}
-        {{#if this}}&#9733;{{else}}&#9734;{{/if}}
-      {{/each}}
-      <span>({{avgRating}} out of 5)</span>
-    </div>
   </div>
 {{/if}}
 
@@ -105,4 +105,5 @@
       <p>No upcoming trips.</p>
     {{/each}}
   </div>
+</div>
 </div>
