@@ -12,19 +12,9 @@ body {
   }
 .navbar {
     font-family: "Goldman", sans-serif;
-    font-size: 1.3rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    font-size: 1rem;
   }
-  .navbar-nav {
-    width : 100%;
-    list-style: none;
-    justify-content: center;
-    padding: 0;
-    /* margin-right: 20px; */
-    gap: 20px;
-  }
+
   .nav-item {
     text-decoration: none;
     border-radius: 10px;
