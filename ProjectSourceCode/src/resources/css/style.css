@@ -271,19 +271,18 @@ body {
       align-items: center;
   }
   .nav-logo {
-      width: 60px;  /* Adjusted logo size for smaller screens */
+      width: 60px;
       margin: 0px;
-      margin-left: -20px;
   }
   .nav-item {
-      font-size: 0.7rem;  /* Adjusted font size for smaller screens */
+      font-size: 0.7rem;
   }
-  #navbarContent {
+  /* #navbarContent {
       display: flex;
-      flex-direction: column;  /* Changed to column layout for smaller screens */
+      flex-direction: column;
       align-items: left;
       width: 100%;
-  }
+  } */
 }
 
   /* --------Find A Ride CSS---------- */
