@@ -272,7 +272,8 @@ body {
   }
   .nav-logo {
       width: 60px;  /* Adjusted logo size for smaller screens */
-      margin-top: 0px;
+      margin: 0px;
+      margin-left: -20px;
   }
   .nav-item {
       font-size: 0.7rem;  /* Adjusted font size for smaller screens */
