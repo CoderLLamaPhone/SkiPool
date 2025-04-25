@@ -1,0 +1,12 @@
+Release Notes - April 23rd
+
+What we've done in the past week:
+
+- UAT-plans.txt tests executed
+- Fixed logout bug in nav bar
+- Make messaging when search for users functional
+- Deploy site on render
+- Fix bugs in login
+- Work on presentation
+- Update styling
+- Work on project report
