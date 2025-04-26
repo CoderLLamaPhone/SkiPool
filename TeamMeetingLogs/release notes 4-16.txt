@@ -1,0 +1,12 @@
+Release Notes - April 16th
+
+What we've done in the past week:
+
+- Increment remaining seats based off rider Signups
+- Fixed registering an account not working
+- Added all filters for all the resorts we're considering
+- Added edit functionality on the profile page
+- Styled the home page and register/login pages
+- Updated trips database for additional info
+- Added edit and complete a ride functionality
+- Implemented deleting a trip

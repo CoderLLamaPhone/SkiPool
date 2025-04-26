@@ -26,8 +26,10 @@ Handlebars.registerHelper('json', function(context) {
 });
 
 Handlebars.registerHelper('formatDate', function(date) {
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  return new Date(date).toLocaleDateString(undefined, options);
+  if (!date) return '';
+  const newDate = new Date(date);
+  const options = { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' };
+  return newDate.toLocaleDateString('en-US', options);
 });
 
 // *****************************************************
@@ -42,8 +44,11 @@ const hbs = handlebars.create({
   helpers: {
     formatDate: function(date) {
       if (!date) return '';
-      const dateStr = typeof date === 'string' ? date : new Date(date).toISOString();
-      return dateStr.split('T')[0];
+      // const dateStr = typeof date === 'string' ? date : new Date(date).toISOString();
+      // return dateStr.split('T')[0];
+      const newDate = new Date(date);
+      const options = { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' };
+      return newDate.toLocaleDateString('en-US', options);
     }
   }
 });
@@ -1103,6 +1108,8 @@ app.get('/submitRating', async (req, res) => {
         WHERE tripID = $1`,
       [tripId]
     );
+
+    const driverID = result.driverID ?? 1;
  
  
     // 4) Insert into driverRatings

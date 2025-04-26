@@ -1,0 +1,9 @@
+Release Notes - March 19th
+
+What we've done in the past week:
+
+- Login/register page
+- Wireframes and outlines for the profile page
+- Completed kickstart document
+- Use case diagram
+- ER diagram

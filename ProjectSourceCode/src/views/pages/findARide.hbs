@@ -6,9 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../resources/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Goldman:wght@400;700&family=Markazi+Text:wght@400..700&display=swap" rel="stylesheet">
   <!-- Font Awesome for stars -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <style>
+    .find-ride-body {
+      font-family: 'Goldman', sans-serif;
+      color: #333;
+      background-color: #1e3d58;
+      border-radius: 10px;
+      margin-bottom: 200px;
+    }
     .trip-details p {
       margin-top: 0.5rem;
       margin-bottom: 0.5rem;
@@ -24,16 +35,93 @@
       justify-content: center;
       font-size: 1.2rem;
     }
+    .trip-signup-btn {
+      background-color: #f39c12;
+      color: white;
+      font-family: Goldman, sans-serif;
+    }
+    .trip-signup-btn:hover {
+      background-color: #e67e22;
+      color: white;
+    }
+    .ride-search-btn {
+      background-color: #3498db;
+      font-family: "Goldman", sans-serif;
+      color: white;
+    }
+    .ride-search-btn:hover {
+      background-color: #2980b9;
+      color: white
+    }
+    .rate-btn {
+      width: 110px;
+      background-color: #f39c12;
+      font-family: "Goldman", sans-serif;
+      font-size: 0.8rem;
+      color: white;
+      margin-bottom: 10px;
+    }
+    .rate-btn:hover {
+      background-color: gold;
+      color: white;
+    }
+    .edit-signup-btn {
+      background-color: #1e3d58;
+      color: white;
+      font-size: 0.8rem;
+      font-family: Goldman, sans-serif;
+      margin-bottom: 10px;
+    }
+    .edit-signup-btn:hover {
+      background-color: #4181b9;
+      color: white;
+    }
+    .reset-btn {
+      background-color: #1e3d58;
+      font-family: Goldman, sans-serif;
+      color: white;
+    }
+    .reset-btn:hover {
+      background-color: darkslategrey;
+      color: white;
+    }
+    .available-trips-container {
+      max-height: 580px;
+      overflow-y: auto;
+      padding: 10px;
+      font-family: "Markazi Text", serif;
+      font-weight: 500;
+      font-size: larger;
+    }
     /* Rating stars */
     .star {
       font-size: 2rem;
       cursor: pointer;
       margin: 0 .2rem;
     }
+    .close-btn {
+      background-color: #333;
+      color: white;
+      font-family: Goldman, sans-serif;
+    }
+    .close-btn:hover {
+      background-color: darkslategrey;
+      color: white;
+    }
+    .signup-btn {
+      width: 200px;
+      background-color:#f39c12;
+      color: white;
+      font-family: Goldman, sans-serif;
+    }
+    .signup-btn:hover {
+      background-color: #e67e22;
+      color: white;
+    }
   </style>
 </head>
-<body class="bg-light">
-  <div class="container my-4">
+<body>
+  <div class="find-ride-body container my-4">
     <div class="row">
       <!-- Ride Search Form -->
       <div class="col-md-3 mb-4">
@@ -74,7 +162,7 @@
               </div>
               <div class="mb-3">
                 <label for="date" class="form-label">Departure Date</label>
-                <input type="date" id="date" name="date" class="form-control" value="{{date}}">
+                <input type="date" id="date" name="date" class="form-control" value="{{formatDate date}}">
               </div>
               <div class="mb-3">
                 <label for="price" class="form-label">Maximum Price ($)</label>
@@ -84,8 +172,8 @@
                 <label for="availableSeats" class="form-label">Minimum Available Seats</label>
                 <input type="number" id="availableSeats" name="availableSeats" class="form-control" min="1" max="6" value="{{availableSeats}}">
               </div>
-              <button type="submit" class="btn btn-primary w-100">Search</button>
-              <a href="/rider" class="btn btn-secondary w-100 mt-2">Reset Filters</a>
+              <button type="submit" class="btn ride-search-btn w-100">Search</button>
+              <a href="/rider" class="btn reset-btn w-100 mt-2">Reset Filters</a>
             </form>
           </div>
         </div>
@@ -96,7 +184,7 @@
           <div class="card-header">
             <h2 class="h5 mb-0">Available Trips in Colorado</h2>
           </div>
-          <div class="card-body">
+          <div class="card-body available-trips-container">
             {{#if trips.length}}
               {{#each trips}}
                 <div class="card mb-3">
@@ -114,7 +202,7 @@
                       <div class="row trip-details">
                         <div class="col-md-6">
                           <p><strong>Pickup Location:</strong> {{pickuplocation}}</p>
-                          <p><strong>Departure Date:</strong> {{date}}</p>
+                          <p><strong>Departure Date:</strong> {{formatDate date}}</p>
                           <p><strong>Departure Time:</strong> {{est_outbound}}</p>
                           <p><strong>Return Time:</strong> {{est_return}}</p>
                         </div>
@@ -133,7 +221,8 @@
                             &#10003; Signed up
                           </div>
                           <!-- Edit Ride button carries availableSeats -->
-                          <button class="btn btn-warning"
+                          <button class="btn edit-signup-btn"
+                            {{#if isDriver}}disabled{{/if}}
                             data-bs-toggle="modal"
                             data-bs-target="#signupModal"
                             data-driver="{{username}}"
@@ -144,7 +233,7 @@
                             Edit Ride
                           </button>
                           <!-- Rate Driver button -->
-                          <button class="btn btn-outline-primary mt-2 rate-driver-btn"
+                          <button class="btn rate-btn"
                             data-bs-toggle="modal"
                             data-bs-target="#ratingModal"
                             data-tripid="{{tripid}}"
@@ -153,7 +242,7 @@
                           </button>
                         </div>
                       {{else}}
-                        <button class="btn btn-success"
+                        <button class="btn trip-signup-btn"
                           data-bs-toggle="modal"
                           data-bs-target="#signupModal"
                           data-driver="{{username}}"
@@ -244,8 +333,8 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" id="cancelRideButton" style="display: none;">Cancel Ride</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" form="signup-form" class="btn btn-primary">Sign Up</button>
+          <button type="button" class="close-btn" data-bs-dismiss="modal">Close</button>
+          <button type="submit" form="signup-form" class="signup-btn">Sign Up</button>
         </div>
       </div>
     </div>

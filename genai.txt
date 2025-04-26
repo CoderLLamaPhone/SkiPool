@@ -1,0 +1,28 @@
+Generative AI Usage and References
+
+Skeleton of app, login/register, footer, header, nav taken from the labs
+
+https://getbootstrap.com/docs/5.0/getting-started/introduction/
+Bootstrap Documentation
+
+Github Copilot autofill:
+Mainly used for styling, ex: Page bodies were repetitive
+Some used for autofilling res.status errors/messages on index.js
+
+Chat Gpt:
+Prompt: I am using a date in javascript. Right now it displays as "Thu Dec 25 2025 00:00:00 GMT+0000 (Coordinated Universal Time)" 
+This value gets passed into our front-end as departuredate. Could I insert javascript into an .hbs file to format the date 
+as Thu Dec 25, 2025?
+
+Response: We used this section:
+Define a helper to format the date within the .hbs file:
+handlebars.registerHelper('formatDate', function(date) {
+    const options = { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' };
+    return new Date(date).toLocaleDateString('en-US', options);
+});
+Pass the raw departuredate to the template and use the helper in the .hbs file:
+<p>{{formatDate departuredate}}</p>
+
+Prompt: How can I connect my css / static files to my app with node js / express?
+Response: We only used this part:
+app.use(express.static(path.join(__dirname, 'public')));
