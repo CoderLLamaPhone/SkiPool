@@ -324,6 +324,8 @@ app.get('/driver', async (req, res) => {
       [driver.driverid]
     );
 
+    console.log('Trips for user:', trips);
+
     res.render('pages/driverInfo', { trips: trips || [] });
   } 
   catch(err){
@@ -352,15 +354,19 @@ app.post('/driver', async (req, res) => {
     info
   } = req.body;
 
+  console.log("BODY:", req.body);
+
   try{
     const driverQuery = 'SELECT driverID FROM driverInfo WHERE username = $1';
     const driver = await db.oneOrNone(driverQuery, [username]);
+    console.log("Driver", driver);
 
     if (!driver) {
       return res.status(400).send('Driver info not found for this user.');
     }
 
     const driverID = driver.driverid;
+    console.log("DriverID from session:", driverID);
 
     const insertTripQuery = `
     INSERT INTO trips (
@@ -387,6 +393,7 @@ app.post('/driver', async (req, res) => {
     
     const newTrip = await db.one(insertTripQuery, tripData);
 
+    console.log('New trip created:', newTrip);
     res.redirect('/driver');
   }
   catch(error){
@@ -411,22 +418,41 @@ app.post('/trips/delete/:tripid', async (req, res) => {
 
 app.post('/register', async (req, res) => {
   try {
-    if (!req.body.username || !req.body.password) {
-      return res.status(400).render('pages/register', { error: 'Username and password are required.' });
-    }
-    const hash = await bcrypt.hash(req.body.password, 10);
-    const query =
-      'INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING *;'
-    const query2 = 'INSERT INTO driverInfo (username) VALUES ($1) RETURNING *;'
-    const query3 = 'INSERT INTO riderInfo (username) VALUES ($1) RETURNING *;'
+    const { username, password } = req.body;
+    console.log('Received register request:', req.body);
 
-    const insertData = await db.one(query, [req.body.username, hash]);
-    const driverData = await db.one(query2, [req.body.username]);
-    const riderData = await db.one(query3, [req.body.username]);
-    res.redirect('/login');
+    // Check for missing fields
+    if (!username || !password) {
+      console.log('Missing required fields');
+      return res.status(400).render('pages/register', {
+        error: 'Username and password are required.',
+      });
+    }
+
+    // Insert into user table
+    const hash = await bcrypt.hash(password, 10);
+    const insertUser = await db.one(
+      'INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING *;',
+      [username, hash]
+    );
+    console.log('Inserted into user:', insertUser);
+
+    // Insert into driver and rider tables
+    await db.one('INSERT INTO driverInfo (username) VALUES ($1) RETURNING *;', [username]);
+    console.log('Inserted into driverInfo');
+
+    await db.one('INSERT INTO riderInfo (username) VALUES ($1) RETURNING *;', [username]);
+    console.log('Inserted into riderInfo');
+
+    // Redirect to login on success
+    console.log('Redirecting to /login');
+    return res.redirect('/login');
+
   } catch (error) {
-    console.error('Error during registration:', error);
-    res.status(400).render('pages/register', { error: 'Registration failed. Please try again.' });
+    console.error('REGISTRATION ERROR:', error.message);
+    return res.status(400).render('pages/register', {
+      error: 'Registration failed. Please try again.',
+    });
   }
 });
 
@@ -646,6 +672,7 @@ app.get('/cancelSignup', async (req, res) => {
 
 // Logout
 app.get('/logout', (req, res) => {
+  console.log('Logout');
   req.session.destroy(function(err) {
   // send message to the client
     res.render('pages/logout', {message: 'You have been logged out successfully'});
@@ -700,7 +727,7 @@ app.get('/chatroom/:id', async (req, res) => {
        FROM chatroom c
        JOIN chatroomParticipants cp ON c.chatroomid = cp.chatroomID
        WHERE c.chatroomid = $1 AND cp.username = $2`,
-      [chatroomId, username]
+      [chatroomId, req.session.user.username]
     );
 
     if (!chatroom) {
@@ -779,17 +806,21 @@ app.post('/createChatroom', async (req, res) => {
   const user2 = req.body.targetUsername;
 
   try {
-  // Check if a chatroom already exists
-  const existingChats = await db.any(`
-    SELECT cp.chatroomid
-    FROM chatroomParticipants cp
-    GROUP BY cp.chatroomid
-    HAVING COUNT(*) = 2 AND BOOL_AND(cp.username = $1 OR cp.username = $2)
-  `, [user1, user2]);
+    // Check if a chatroom already exists
+    const existingChats = await db.any(`
+      SELECT cp.chatroomid
+      FROM chatroomParticipants cp
+      GROUP BY cp.chatroomid
+      HAVING COUNT(*) = 2 AND BOOL_AND(cp.username = $1 OR cp.username = $2)
+    `, [user1, user2]);
   
   if (existingChats.length > 0) {
     return res.redirect(`/chatroom/${existingChats[0].chatroomid}`);
   }
+
+    if (existingChat) {
+      return res.redirect(`/chatroom/${existingChat.chatroomid}`);
+    }
 
     // Create new chatroom
     const newChat = await db.one(`
@@ -812,26 +843,31 @@ app.post('/createChatroom', async (req, res) => {
 
 app.get('/profile', async (req, res) => {
   if (!req.session.user) {
+    // If the client accepts JSON, return JSON 401
+    if (req.get('Accept') === 'application/json') {
+      return res.status(401).json({ message: 'Unauthorized: Please log in.' });
+    }
+    // Otherwise redirect to login page
     return res.status(401).redirect('/login');
   }
 
   try {
-    const user = await db.one('SELECT * FROM "user" WHERE username = $1', [req.session.user.username]);
+    const username = req.session.user.username;
+    const user = await db.one('SELECT * FROM "user" WHERE username = $1', [username]);
 
-    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [req.session.user.username]);
+    const driver = await db.oneOrNone('SELECT * FROM driverInfo WHERE username = $1', [username]);
+    const driverID = driver?.driverid || null;
 
+    const today = new Date();
+    let avgRating = driver?.avg_rating || null;
+    let reviews = [];
+    let cars = [];
     let trips = [];
     let pastTrips = [];
     let upcomingTrips = [];
-    let avgRating = null;
-    let car = null;
-    const today = new Date();
-    let reviews = [];
 
-  
-    if (driver) {
-      const driverID = driver.driverid;
-      const reviews = await db.any(`
+    if (driverID) {
+      reviews = await db.any(`
         SELECT dr.stars, dr.message, dr.reviewedBy, dr.date
         FROM driverRatings dr
         WHERE dr.driverID = $1
@@ -839,32 +875,36 @@ app.get('/profile', async (req, res) => {
         LIMIT 3
       `, [driverID]);
 
-      avgRating = driver.avg_rating;
-
       cars = await db.any('SELECT * FROM car WHERE ownerID = $1', [driverID]);
+
       trips = await db.any(`
         SELECT t.date, t.resort, r.location
         FROM trips t
         JOIN resort r ON t.resort = r.name
-        WHERE t.driverID = $1
+        WHERE t.driverid = $1
         ORDER BY t.date DESC
       `, [driverID]);
 
       pastTrips = trips.filter(trip => new Date(trip.date) < today);
       upcomingTrips = trips.filter(trip => new Date(trip.date) >= today);
-    } else {
-      const newDriver = await db.one(
-      'INSERT INTO driverInfo (username) VALUES ($1) RETURNING *;',
-      [req.session.user.username]
-      );
-      avgRating = newDriver.avg_rating;
-      cars = [];
-      trips = [];
-      pastTrips = [];
-      upcomingTrips = [];
     }
 
-    res.render('pages/profile', {
+    // Respond with JSON only if explicitly requested
+    if (req.get('Accept') === 'application/json') {
+      return res.status(200).json({
+        user,
+        avgRating,
+        driverInfo: driver,
+        cars,
+        reviews,
+        pastTrips,
+        upcomingTrips,
+        hasIkonPass: true
+      });
+    }
+
+    // Otherwise render HTML page (browser)
+    return res.render('pages/profile', {
       user,
       avgRating,
       driverInfo: driver,
@@ -872,14 +912,20 @@ app.get('/profile', async (req, res) => {
       reviews,
       pastTrips,
       upcomingTrips,
-      hasIkonPass: true 
+      hasIkonPass: true
     });
 
   } catch (err) {
     console.error('Error loading profile:', err);
-    res.status(500).send("Server error");
+
+    if (req.get('Accept') === 'application/json') {
+      return res.status(500).json({ message: 'Server error' });
+    }
+
+    return res.status(500).send("Server error");
   }
 });
+
 app.get('/profile/edit', async (req, res) => {
   if (!req.session.user) return res.redirect('/login');
 
@@ -1015,7 +1061,7 @@ app.get('/profile/:username', async (req, res) => {
         SELECT t.date, t.resort, r.location
         FROM trips t
         JOIN resort r ON t.resort = r.name
-        WHERE t.driverID = $1
+        WHERE t.driverid = $1
         ORDER BY t.date DESC
       `, [driver.driverid]);
     }
@@ -1056,7 +1102,7 @@ app.get('/submitRating', async (req, res) => {
  
   try {
     // 3) Lookup driverID for this trip
-    const result = await db.one(
+    const { driverid } = await db.one(
       `SELECT driverID
          FROM trips
         WHERE tripID = $1`,
@@ -1071,7 +1117,7 @@ app.get('/submitRating', async (req, res) => {
       `INSERT INTO driverRatings
          (driverID, stars, message, reviewedBy, tripID, date)
        VALUES ($1, $2, $3, $4, $5, CURRENT_DATE)`,
-      [driverID, Number(rating), '', reviewedBy, tripId]
+      [driverid, Number(rating), '', reviewedBy, tripId]
     );
  
  
