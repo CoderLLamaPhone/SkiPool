@@ -96,13 +96,13 @@ working as intended.
 User Acceptance Testers:
 Tester Name        Role
 --------------------------------------------------------------
-Kerem Gurkan       Execute test cases and document results
+Manav Shah         Execute test cases and document results
 Manav Shah         Debug and fix issues based on test reports
 
 Actual Test Results:
 Drive                                                      Actual Outcome
------------------------------------------------------------------------------
-Create a new drive with the following information:         [To be filled]
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Create a new drive with the following information:         A trip with the same information appears under "Your Trips," and the trip appears on the Find a Ride page.
 Pickup Location: Engineering Center
 Destination Resort: Arapahoe Basin
 Departure Date: 4/30/2025
